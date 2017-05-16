@@ -18,3 +18,5 @@ Activated the github repo on travis-CI.org and also modified the .lektorproject 
 
 Went into the github repo settings on github and chose the master branch as the site source. 
 
+Did lektor deploy and and it created a new branch called gh-pages? I've selected gh-pages as the branch to use for the website
+
