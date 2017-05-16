@@ -16,3 +16,5 @@ Turned the existing nb-notebook folder into a github repo and added a .travis.ym
 
 Activated the github repo on travis-CI.org and also modified the .lektorproject file to the state shown above.
 
+Went into the github repo settings on github and chose the master branch as the site source. 
+
