@@ -1,0 +1,106 @@
+{% extends "layout.html" %}
+{% from "macros/projects.html" import project_header_links %}
+{% from "macros/projects.html" import render_project_entry %}
+{% from "macros/projects.html" import render_project_entry_list %}
+{% from "macros/projects.html" import browse_to %}
+
+{% block title %}{{ this.name }}{% endblock %}
+
+{% block body %}
+<div class="row">
+  <div class="five columns">
+    <h1 style="display:inline-block;" class="orange">{{ this.name }}/{% if this.star %}<span class="small {{this.star}}"><i class="fa fa-star" aria-hidden="true"></i> </span>{% endif %}</h1> {{ this.description }}
+  </div>
+  <div class="one column">
+    {{browse_to(this)}}
+  </div>
+  <div class="four columns">
+    <input id="date" type="date"> <a href="#" onclick="createEntry('{{this.path}}', document.querySelector('#date').value );">+</a>
+    </small>
+  </div>
+</div>
+
+{% for item in this.children recursive %}
+  {% if item._model != 'entry' %}
+    <div class="row">
+      <div class="five columns">
+        {{browse_to(item)}}
+        {% if item._model == 'project' %}
+          {% set spanclass = 'orange' %}
+        {% elif item._model == 'folder' %}
+          {% set spanclass = 'green' %}
+        {% endif %}
+        <a style="margin-left:{{loop.depth0 * 2}}rem;" href="{{ item|url }}">&boxur;<span class="{{spanclass}}">{{ item.name }}</span></a>
+      </div>
+      <div class="six columns">
+        <small>
+        {% set yyyy = 1900 %}
+        {% set mm = 0 %}
+        {% for entry in item.children.filter(F._model=='entry')|sort(attribute='date') %}
+          {% if entry.date.year > yyyy %}
+            <span class="gray">{{entry.date.year}}</span>
+            {% set yyyy = entry.date.year %}
+            {% set mm = 0 %}
+          {% endif %}
+          {% if entry.date.month > mm %}
+            <span class="lightgray">{{entry.date.strftime('%b')}}</span>
+            {% set mm = entry.date.month %}
+          {% endif %}
+          <a href="{{entry.parent|url}}#{{entry.date}}">{{entry.date.strftime('%e')}}</a>
+        {% endfor %}
+      </small> <a href="#" onclick="createEntry('{{item.path}}', document.querySelector('#date').value );">+</a></li>
+      </div>
+    </div>
+
+  {{loop(item.children)}}
+
+  {% endif %}
+{% endfor %}
+
+<div class="row">
+  <div class="five columns">
+    <span style="margin-left:2.4rem; color:#4daf4a;">&boxur;</span><form id="nrform"><input id="nrinput" class="newfolder" type="text" placeholder="new-folder" pattern="[_\-a-zA-Z0-9]+" spellcheck="false" oninput="validate('nrform','nrsubmit','nrwarn');"><input id="nrsubmit" type="submit" class="textbutton" style="color:#4daf4a;" onclick="createFolder('{{this.path}}',document.querySelector('#nrinput').value );" value="+"><span id="nrwarn" class="inlinewarning"><i class="fa">&#xf071;</i> alphanumeric chars only (no whitespace)</span></form>
+  </div>
+</div>
+
+{% if this.body %}
+  <div style="margin-top:2rem; margin-bottom:2rem;" class="row">
+    <div class="ten columns small red">
+    {{ this.body }}
+    </div>
+  </div>
+{% endif %}
+
+<hr>
+
+
+<!-- Construct two dicts mapping description and date to entry records  -->
+{% set desc_to_entries = {} %}
+{% set date_to_entry = {} %}
+{% for entry in this.children.filter(F._model=='entry') %}
+  {% set desc = entry.description %}
+  {% set entrylist = desc_to_entries[desc]|default([]) %}
+  {% set _ = desc_to_entries.update({desc:entrylist+[entry]}) %}
+  {% set date = entry.date %}
+  {% set entrylist = date_to_entry[date]|default([]) %}
+  {% set _ = date_to_entry.update({date:entrylist+[entry]}) %}
+{% endfor %}
+
+<!-- Loop through child entries, sorted -date by the model.
+Render all entry dates together for matching descriptions -->
+{% for entry in this.children.filter(F._model=='entry') %}
+  {% if entry.date == desc_to_entries[entry.description][0].date %}
+    {{render_project_entry_list(desc_to_entries[entry.description])}}
+  {% endif %}
+{% endfor %}
+
+
+<script>
+(function () {
+    var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+    var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0,-1).substring(0, 10);
+    document.querySelector('#date').value = localISOTime;
+})()
+</script>
+
+{% endblock %}

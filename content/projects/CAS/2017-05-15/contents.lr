@@ -1,0 +1,26 @@
+_model: entry
+---
+date: 2017-05-15
+---
+description: Batch PFAM Conversion
+---
+body:
+
+Completed batch PFAM conversion on cluster via submission script 'submission.sh'.
+
+Had 229 .gbff files to parse, counted with command
+	
+	ls | wc -l
+
+
+So used the -t flag in the submission script hard-coded to be 1-229. The SGE_TASK_ID
+environment variable then gets mapped to an array variable that I've created holding the
+individual .gbff filenames. So each task ID maps to a single filename. For each task, the script
+cas9_pfam_cluster.py gets called with the filename. 
+
+Overall, takes about 20 minutes for each script call and they are run simultaneously.
+
+
+
+
+
