@@ -1,0 +1,18 @@
+_model: entry
+---
+date: 2017-05-15
+---
+description: Setting up Lektor Notebook and Deploying to github pages
+---
+body:
+
+Downloaded lektor and followed instructions on shawn's lab website (bionano.ucsf.edu). 
+Copied over the master nb folder to my fischbach folder on dropbox and renamed it. I went to shawn's static 
+deployed nb site and am following instructions on how to publish the site.
+
+Trying to follow instructions on this link: https://www.getlektor.com/docs/deployment/travisci/
+
+Turned the existing nb-notebook folder into a github repo and added a .travis.yml file. 
+
+Activated the github repo on travis-CI.org and also modified the .lektorproject file to the state shown above.
+
