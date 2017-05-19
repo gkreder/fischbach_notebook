@@ -48,78 +48,12 @@
     
 <h2 style="display: inline;"><a class="orange" href="../../../projects/CAS/">CAS/</a></h2><br>
 <form target="frame" action="/admin/api/browsefs" method="post">
-  <input type="hidden" name="path" value="/projects/CAS/2017-05-15">
+  <input type="hidden" name="path" value="/projects/CAS/2017-05-17">
   <input type="image" src=../../../static/images/link.png>
 </form>
-<h2 class="lightblue" style="display: inline;">Batch PFAM Conversion</h2> <span style="float:right;" class="midgray">2017-05-15</span> 
+<h2 class="lightblue" style="display: inline;">Untitled</h2> <span style="float:right;" class="midgray">2017-05-17</span> 
 <hr>
 
-
-<h5 style="float:left;">Attachments:</h5>
-
-
-<div class="row">
-  <div class="one column"></div>
-  <div class="two columns"><!-- Attachments: --></div>
-<div class="nine columns">
-    
-    
-    
-        <a class="green" href="../../../projects/CAS/2017-05-15/cas9_pfam_cluster.py">cas9_pfam_cluster.py</a>
-        
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  <i aria-hidden="true" class="icon ion-social-python"></i>
-  
-  
-  
-  
- 
- 
-  
-  
-  
-,
-    
-        <a class="green" href="../../../projects/CAS/2017-05-15/submission.sh">submission.sh</a>
-        
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
- 
- 
-  
-  
-  
-
-    
-  </div>
-</div>
-
-
-<hr>
 
 
 
@@ -127,15 +61,7 @@
 
 
 <div id="entry">
-    <p>Completed batch PFAM conversion on cluster via submission script 'submission.sh'.</p>
-<p>Had 229 .gbff files to parse, counted with command</p>
-<pre><code>ls | wc -l
-</code></pre>
-<p>So used the -t flag in the submission script hard-coded to be 1-229. The SGE_TASK_ID
-environment variable then gets mapped to an array variable that I've created holding the
-individual .gbff filenames. So each task ID maps to a single filename. For each task, the script
-cas9_pfam_cluster.py gets called with the filename.</p>
-<p>Overall, takes about 20 minutes for each script call and they are run simultaneously.</p>
+    <h2>Placeholder Text</h2>
 
 </div>
 
@@ -186,7 +112,7 @@ cas9_pfam_cluster.py gets called with the filename.</p>
 
 // var paragraphs = $$("#entry>p");
 // var lastEl = paragraphs.getLast();
-// var path = '/projects/CAS/2017-05-15';
+// var path = '/projects/CAS/2017-05-17';
 
 // paragraphs.each(function(el) {
 //   var dropArea = new Element('div', {'class':'right droparea',

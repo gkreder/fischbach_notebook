@@ -1,0 +1,1 @@
+genbank_to_fasta.py -i HHV-5_HCMV_NC_006273.gb -o HHV-5_HCMV_NC_006273.fasta -s aa -f CDS -d spacepipe -q locus_tag,gene,product,location,protein_id -m genbank

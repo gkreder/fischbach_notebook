@@ -46,12 +46,12 @@
 
   <div class="page">
     
-<h2 style="display: inline;"><a class="orange" href="../../../projects/CAS/">CAS/</a></h2><br>
+<h2 style="display: inline;"><a class="orange" href="../../../projects/HSV/">HSV/</a></h2><br>
 <form target="frame" action="/admin/api/browsefs" method="post">
-  <input type="hidden" name="path" value="/projects/CAS/2017-05-15">
+  <input type="hidden" name="path" value="/projects/HSV/2017-05-16">
   <input type="image" src=../../../static/images/link.png>
 </form>
-<h2 class="lightblue" style="display: inline;">Batch PFAM Conversion</h2> <span style="float:right;" class="midgray">2017-05-15</span> 
+<h2 class="lightblue" style="display: inline;">Data Fetching and Organization</h2> <span style="float:right;" class="midgray">2017-05-16</span> 
 <hr>
 
 
@@ -65,7 +65,132 @@
     
     
     
-        <a class="green" href="../../../projects/CAS/2017-05-15/cas9_pfam_cluster.py">cas9_pfam_cluster.py</a>
+        <a class="green" href="../../../projects/HSV/2017-05-16/1_gb_to_fasta.sh">1_gb_to_fasta.sh</a>
+        
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+ 
+ 
+  
+  
+  
+,
+    
+        <a class="green" href="../../../projects/HSV/2017-05-16/2_adjust_fasta.sh">2_adjust_fasta.sh</a>
+        
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+ 
+ 
+  
+  
+  
+,
+    
+        <a class="green" href="../../../projects/HSV/2017-05-16/5-16-17 - Gene Expression.md">5-16-17 - Gene Expression.md</a>
+        
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+ 
+ 
+  
+  
+  
+,
+    
+        <a class="green" href="../../../projects/HSV/2017-05-16/example.txt">example.txt</a>
+        
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+ 
+ 
+  
+  
+  
+,
+    
+        <a class="green" href="../../../projects/HSV/2017-05-16/gb_to_fasta.sh">gb_to_fasta.sh</a>
+        
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+ 
+ 
+  
+  
+  
+,
+    
+        <a class="green" href="../../../projects/HSV/2017-05-16/genbank_to_fasta.py">genbank_to_fasta.py</a>
         
   
   
@@ -90,7 +215,7 @@
   
 ,
     
-        <a class="green" href="../../../projects/CAS/2017-05-15/submission.sh">submission.sh</a>
+        <a class="green" href="../../../projects/HSV/2017-05-16/README.txt">README.txt</a>
         
   
   
@@ -127,15 +252,25 @@
 
 
 <div id="entry">
-    <p>Completed batch PFAM conversion on cluster via submission script 'submission.sh'.</p>
-<p>Had 229 .gbff files to parse, counted with command</p>
-<pre><code>ls | wc -l
-</code></pre>
-<p>So used the -t flag in the submission script hard-coded to be 1-229. The SGE_TASK_ID
-environment variable then gets mapped to an array variable that I've created holding the
-individual .gbff filenames. So each task ID maps to a single filename. For each task, the script
-cas9_pfam_cluster.py gets called with the filename.</p>
-<p>Overall, takes about 20 minutes for each script call and they are run simultaneously.</p>
+    <h2>HSV-2017-05-16</h2>
+<p>Currently able to grab uniprot xml data for a single protein ID. Can store it as a dict. Need to grab data for all protein IDs and find a good way to store them.</p>
+<h3>Stripping Data</h3>
+<p>I've stripped down the xml data as best I can so far. The problem is that different entries have different depths. I've unfurled the annotations dictionary so that the different annotations get their own top-level entries in the resulting record_dict for each protein record but I'm going to move on instead of trying to unfurl even further.</p>
+<h3>Scraping all IDs</h3>
+<p>I need to get the list of all protein IDs from somewhere so that I can call the record_dict function on each one. I think I may have just copy-pasted a protein ID directly from the bokeh html graph. Looks like the only other function in the file currently is an aux function that's being used to create the record_dict for each protein ID. So I'm going to have to grab all the protein IDs from somewhere. Where did they come from originally?</p>
+<h3>Organizing HSV directory</h3>
+<p>I think I need to reorganize the HSV directory so that I know where everything is. I'm going to keep everything under the HSV top-folder and take it from there. I think the existing file-structure is based on the assumption that the whole dropbox-fischbach directory was going to be turned into a website which is not the case.</p>
+<p>So created a data folder in HSV. I'm going to move the data fetching script there and eventually the Bokeh files. But I also want to consolidate the core .gb and .fasta files in there.</p>
+<p>Moved most of the gb and fasta files into the new folder, and probably have disrupted the Bokeh workflow (definitely have disrupted the orthomcl workflow). Going to have to revisit when I try to add orthomcl slider functionality into the bokeh front-end.</p>
+<p>On second thought, better to get orthomcl up and running in the new data folder, that way I know what's available in the data folder for scraping.</p>
+<h3>Moving orthomcl dir to HSV/data</h3>
+<p>Copied over orthomcl.config.template over to HSV/data. Don't think I need to reinstall schema.</p>
+<p>I've written a shell script called gb_to_fasta.sh that calls the python script in genbank_to_fasta_1.1. Goes into folder HHV_gb and converts everything to fasta and spits out resulting file into HHV_fasta.</p>
+<p>Now working on calling orthomclAdjustFasta. Writing another shell script (2_adjust_fasta.sh) that calls orthomclAdjustFasta. Does so for every fasta file in HHV_fasta and moves the compliant version to HHV_compliant with name according to whatever name is given in the original fasta file (and original .gb file) before the first "_" character.</p>
+<p>Script 3 (3_filter_fasta.sh) filters the compliant fasta file. Uses the default suggested filtering values (10 minimum sequence length and 20 maximum percent stop codons) but these values can be adjusted by changing the variables in the script 3_filter_fasta.sh.</p>
+<p>Also have this script dumping the resulting goodProteins and poorProteins files into a folder called orthomcl_files so that they are not sitting in the top-level directory.</p>
+<h4>Running BLAST on goodProteins.fasta</h4>
+<p>Need shell scripts to run BLAST on goodProteins.fasta. I think I can tinker with the parameters here.</p>
 
 </div>
 
@@ -186,7 +321,7 @@ cas9_pfam_cluster.py gets called with the filename.</p>
 
 // var paragraphs = $$("#entry>p");
 // var lastEl = paragraphs.getLast();
-// var path = '/projects/CAS/2017-05-15';
+// var path = '/projects/HSV/2017-05-16';
 
 // paragraphs.each(function(el) {
 //   var dropArea = new Element('div', {'class':'right droparea',
@@ -236,7 +371,7 @@ cas9_pfam_cluster.py gets called with the filename.</p>
   </div>
 
   <footer>
-    &copy; 2016. Made with <a target="_new" href="http://bionano.ucsf.edu/"><i class="fa fa-gears"></i></a> in SF.
+    &copy; 2016. Made with <a target="_new" href="http://bionano.ucsf.edu/"><i class="fa fa-flask"></i></a> in SF.
   </footer>
 
 </body>
