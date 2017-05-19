@@ -1,0 +1,233 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title></title>
+    <link rel="stylesheet" href="../../../../static/fonts/fa/css/font-awesome.min.css?h=512c7d79">
+    <link rel="stylesheet" href="/static/lib/reveal/css/reveal.css">
+    <link rel="stylesheet" href="/static/lib/reveal/css/theme/white.css" id="theme">
+    <link rel="stylesheet" href="/static/slides.css">
+    <style>#lektor-edit-link {display:none;}</style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+      
+      <section data-markdown data-separator="^\n\n">
+        
+## CAS 5-18-17
+
+
+
+I wrote another sort shell script (check_REC.sh) that checks for unique hits of Cas9_REC keyword in each .pfd file. Uses the -q flag to look for first hit of keyword in file and piped the output of the script (printed file names) to wc -l. Got 158 hits and 158 hits for ls *.pfd | wc -l which, so I think that each file in there has at least one instance of Cas9_REC and some have more. It might be interesting to see which ones have more. Shell script code:
+
+~~~bash
+#!/bin/bash
+
+cd all_pfam
+
+array=(*.pfd)
+
+for i in &#34;${array[@]}&#34;
+do
+	if $(grep &#34;-q&#34; &#34;Cas9_REC&#34; &#34;$i&#34;)
+	then
+		echo &#34;$i&#34;
+	fi
+done
+~~~
+
+At this point I may want to automate the process of collecting and cleaning up this data? Or probably better would be to keep going and get to the point where I can do some analysis. Just be smart and leave enough of a paper trail to do similar things with other PFAM keywords if I&#39;m interested. 
+
+
+------
+
+I think what I want to do is something like I did for S. Pyogenes, grabbing the surrounding PFAM terms like I did in make_blocks.py. 
+
+I&#39;m going to modify make_blocks so that it takes an input PFAM term as ARGV[1]. 
+
+Think I should take a minute to clean up the CAS project file structure. I&#39;m going to organize by PFAM term...is that the best way of doing things?
+
+Right now I have cas9_genomes -&gt; all_cas9_species -&gt; all_pfam which I don&#39;t think works like I would want it to. I&#39;m going to organize the file structure to look something like this:
+
+
+CAS  | |	| |
+------------- | -------- | -------- | ------- |
+data  | 
+pfam_ID | 
+all_gb | all_fasta |  all_pfam | blocks.out
+
+I&#39;ll migrate the scripts up to the top level eventually. When I go back and try to generalize, I&#39;ll have to migrate over scripts to the top directory and also add in a portion of scraping the right data. 
+
+As I&#39;m updating this code I think it might be worth it to quickly define some objects/classes. It&#39;s becoming pretty hard to keep track of what&#39;s what as I run into hits and that was a problem I&#39;m having before. 
+
+
+Created a pfam object stored in file pfam_object.py. Takes a stripped list split by &#39;\t&#39; delimiter from .pfd file and saves everything into the coresponding attributes:
+
+	file
+	locus_tag 
+	start_loc 
+	end_loc 
+	strand 
+	pfam_num 
+	pfam_id 
+	sequence
+	
+Now also have blocks being spit out in new format. Have three &#39;blocks&#39; (term_blocks, before_blocks, after_blocks)
+
+Term blocks is a list of all the pfam object hits coming from the lines where the target pfam term was found (so in this case, a list of all the pfam objects created from the lines where Cas9_REC was found). 
+
+Before blocks is a list of lists of pfam objects. Each list is of size WINDOW_HALF_SIZE and is a list of sequential pfam objects looking at what&#39;s before the pfam target hit. 
+
+After blocks is similar to before blocks, just the terms that come after. Should I be including the sequence here? Might be a good spot to save the AA sequence just in case I want to go deeper than just the pfam_term. 
+
+I think I&#39;m going to take a minute to do that. 
+
+also...side note...going to get rid of the &#39;all&#39; notation in the folders. **Just going to have ./fasta and ./gb and ./pfam**
+
+Gotta remember that when I go back into the other scripts. 
+
+
+Grabbing AA Sequences
+------
+
+Went back into the batch pfam conversion script (cas9_pfam_cluster.py) and it looks like the AA sequence for each PFAM find is saved, just never used. There&#39;s a dict in there called seqdict that I think is holding the sequences? 
+
+I just added a line, grabbing the sequence from there and writing it to the line in the output .pfd file. 
+
+Looks like the exsits_ok argument won&#39;t fly on the cluster because it&#39;s not running python3....
+
+Removed that argument and it seemed to work ok. Hopefully won&#39;t affect the call when the file already exists (/hmmer_aux_files/ didn&#39;t exist on this call) but worth keeping in mind in the future if something comes up.
+
+Now storing the AA sequence should be as straightforward as going back as just adding another attribute to the pfam object constructor and taking the last element of the passed list (line split by &#39;\t&#39;) as the AA sequence. 
+
+Block and Hits Data Structure
+------
+
+Created two data structures, block and hits. The block and hits objects object has the following fields
+
+	pfam_objects
+	start_locs
+	end_locs
+	strands
+	pfam_nums
+	pfam_ids
+	sequences
+	
+	hits
+	slots
+	
+The hits and slots fields are only present in the block data structure. Hits is the number of lines that were found with the pfam search term (e.g. the number of Cas9_REC hits). Slots is equal to the half window size from make_blocks. So if we&#39;re looking 25 slots on each side of Cas9_REC there is a before_block and an after_block and each one has 25 slots. 	
+
+
+
+Visualization
+-------
+
+I think I should repurpose the Arrower code from before to be drawing the PFAM domains that I&#39;ve found here. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </section>
+      
+      </div>
+    </div>
+
+    <script src="../../../../static/lib/reveal/lib/js/head.min.js?h=8c9495c7"></script>
+    <script src="../../../../static/lib/reveal/js/reveal.js?h=19c4134c"></script>
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        center: false,
+        history: true,
+        margin: 0.2,
+        transition: 'fade', // none/fade/slide/convex/concave/zoom
+        transitionSpeed: 'fast', // default/fast/slow
+
+        menu: {
+            // Specifies which side of the presentation the menu will
+            // be shown. Use 'left' or 'right'.
+            side: 'left',
+
+            // Add slide numbers to the titles in the slide list.
+            // Use 'true' or format string (same as reveal.js slide numbers)
+            numbers: false,
+
+            // Specifies which slide elements will be used for generating
+            // the slide titles in the menu. The default selects the first
+            // heading element found in the slide, but you can specify any
+            // valid css selector and the text from the first matching
+            // element will be used.
+            // Note: that a section data-menu-title attribute or an element
+            // with a menu-title class will take precedence over this option
+            titleSelector: 'h1, h2, h3, h4, h5, h6',
+
+            // Hide slides from the menu that do not have a title.
+            // Set to 'true' to only list slides with titles.
+            hideMissingTitles: false,
+
+            // Add markers to the slide titles to indicate the
+            // progress through the presentation
+            markers: true,
+
+            // Specify custom panels to be included in the menu, by
+            // providing an array of objects with 'title', 'icon'
+            // properties, and either a 'src' or 'content' property.
+            custom: false,
+
+            // Specifies the themes that will be available in the themes
+            // menu panel. Set to 'false' to hide themes panel.
+            themes: [
+                { name: 'Black', theme: '/static/lib/reveal/css/theme/black.css' },
+                { name: 'White', theme: '/static/lib/reveal/css/theme/white.css' },
+                { name: 'League', theme: '/static/lib/reveal/css/theme/league.css' },
+                { name: 'Sky', theme: '/static/lib/reveal/css/theme/sky.css' },
+                { name: 'Solarized', theme: '/static/lib/reveal/css/theme/solarized.css' }
+            ],
+
+            // Specifies if the transitions menu panel will be shown.
+            transitions: true,
+
+            // Adds a menu button to the slides to open the menu panel.
+            // Set to 'false' to hide the button.
+            openButton: true,
+
+            // If 'true' allows the slide number in the presentation to
+            // open the menu panel. The reveal.js slideNumber option must
+            // be displayed for this to take effect
+            openSlideNumber: false,
+
+            // If true allows the user to open and navigate the menu using
+            // the keyboard. Standard keyboard interaction with reveal
+            // will be disabled while the menu is open.
+            keyboard: true
+        },
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [
+          { src: "../../../../static/lib/reveal/plugin/markdown/marked.js" },
+          { src: "../../../../static/lib/reveal/plugin/markdown/markdown.js" },
+          { src: "../../../../static/lib/reveal/plugin/menu/menu.js"},
+          { src: "../../../../static/lib/reveal/plugin/zoom-js/zoom.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/notes/notes.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/highlight/highlight.js", async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+      });
+    </script>
+
+    <a href=".." id="exit-slides-link"><i class="fa fa-close" aria-hidden="true"></i></a>
+  </body>
+</html>

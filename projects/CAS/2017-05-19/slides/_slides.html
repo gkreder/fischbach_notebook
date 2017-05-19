@@ -17,96 +17,28 @@
       
       <section data-markdown data-separator="^\n\n">
         
-## CAS 5-17-17
+## CAS 5-19-17
 
 
 
-Most of the batch PFAM conversion seemed to have worked ok. I&#39;m a little worried about the files where there&#39;s no PFAM output. 
+I&#39;ve gotten the block and hits objects written as well as the pfam object. I&#39;ve spat out the Cas9_REC data and now need to move into the Arrower code and port in the blocks.out file. 
 
-When I convert everything to fasta files using the genbank_to_fasta in the HSV project folder, I&#39;m also getting a lot of empty resulting fasta files. There&#39;s a lot of overlap between the empty fasta files and the empty resulting PFAM files. 
+Writing this down, it seems like maybe I don&#39;t have to go into the arrower code and that might take a little bit of time. I think instead, what I can do is maybe make a heatmap type thing?
 
-The output of some of the files had an error - 
-
-		Traceback (most recent call last):
-		File &#34;./genbank_to_fasta_v1.1/genbank_to_fasta.py&#34;, line 299, in &lt;module&gt;
-	    fasta_records = genbank_to_fasta(record, sequence_type, qualifier_list)
-		File &#34;./genbank_to_fasta_v1.1/genbank_to_fasta.py&#34;, line 262, in genbank_to_fasta
-	    temp_seq = get_nt_seq(feature).translate(table = translation_table)
-		File &#34;./genbank_to_fasta_v1.1/genbank_to_fasta.py&#34;, line 208, in get_nt_seq
-	    if len(feature.sub_features) == 0:
-	AttributeError: &#39;SeqFeature&#39; object has no attribute &#39;sub_features&#39;
-	
-Which looks like it might be an error having to do with the newest version of biopython (sub\_features may have been deprecated going from version 1.67 to 1.68). So added in a quick fix line in the genbank\_to\_fasta.py code in the get\_nt\_seq function before sub_features get referened:
-
-~~~
-	if not hasattr(feature, &#34;sub_features&#34;):
-		feature.sub_features = []
-~~~
-		
-It looks like this is resulting in some new non-empty fasta files, but there are still some empty ones. Definitely less now, but still a handlful of empty files. 
+More of a grid that would look something like this:
 
 
-Actually, just changed up the fix. Pip uninstalled biopython and ran 
-
-~~~
-	pip install biopython==1.67
-~~~
-
-to force installation of biopython 1.67. Commented out the fix line above and it works just as well. Still getting the same empty files though...
-
-Checked the .gbff files and it looks like there&#39;s no CDS regions for these files. I don&#39;t know if there&#39;s any way around that...
-
-Still doesn&#39;t explain why the PFAM files are empty for the .gbff files that have the CDS regions. Is it the same issue with biopython?
+pfam_term | pfam_term | HIT TERM | pfam_term | ... |
+-------- | ------| ---- | -----| -----| ----- |
+pfam_term | pfam_term | HIT TERM | pfam_term | ...
+pfam_term | pfam_term | HIT TERM | pfam_term | ...
+pfam_term | pfam_term | HIT TERM | pfam_term | ...
+pfam_term | pfam_term | HIT TERM | pfam_term | ...
 
 
+The adjacent pfam terms can be colored and sorted for visualization 
 
 
-Turns out those files without any CDS annotation might all be whole genome files with no CDS annotation. 
-
-I made a shell script to remove these files from the all_gb folder (any file that doesn&#39;t have any CDS annotation got removed)
-
-~~~
-#!/bin/bash
-
-cd all_gb
-array=(*)
-# cd ..
-# top_dir=&#34;$PWD&#34;
-
-for i in &#34;${array[@]}&#34;
-do
-	if !($(grep &#34;-q&#34; &#34;CDS&#34; &#34;$i&#34;))
-		then
-			echo &#34;Removing $i ...&#34;
-			rm &#34;$i&#34;
-		fi
-done
-~~~
-
-After removing these files, re-uploading to the cluster and re-running PFAM conversion on the files it looks like that was the biggest issue. There are no empty PFAM files, though there are still some that are small (though the small files are now all .pfs files which is a good sign). Looked at the smallest .pfs file and saw its .pfd file, looks like it has a cas9_rec domain. 
-
-Just checked how many of the .pfd files has Cas9_REC in them by running
-
-	grep Cas9_REC *.pfd | wc -l 
-
-and it looks like there are 162 files with Cas9_REC. But when I run 
-
-	ls *.pfd | wc -l
-
-there are 199 .pfd files which means that a good number of them don&#39;t have Cas9_REC in them. 
-
-Checking on the PFAM website though, it looks like there are less than 199 sequences with Cas9\_REC. According to the [PFAM website](http://pfam.xfam.org/family/PF16592#tabview=tab7) looks like there are 146 sequences with the Cas9\_REC domain?
-
-I think if I try automating this process, I need to scrape the sequences from the website in a better way? I did it from the tree file...but maybe that gave me extra ones?
-
-So I&#39;m going to do another filtering step, write a quick shell script to take out any .pfd/.pfs file combo that doesn&#39;t have Cas9_REC. 
-
-Wrote in script filter\_REC.sh.
-
-Removed some .pfd/.pfs files that don&#39;t have Cas9\_REC. But...when I do grep + wc for Cas9_REC I get 162 .pfd hits and when I do ls to wc I get 158? There must be some .pfd files with repeat Cas9\_REC appearences, but have to check that. 
-
-
-	   	  
       </section>
       
       </div>
