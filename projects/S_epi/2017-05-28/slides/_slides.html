@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title></title>
+    <link rel="stylesheet" href="../../../../static/fonts/fa/css/font-awesome.min.css?h=512c7d79">
+    <link rel="stylesheet" href="/static/lib/reveal/css/reveal.css">
+    <link rel="stylesheet" href="/static/lib/reveal/css/theme/white.css" id="theme">
+    <link rel="stylesheet" href="/static/slides.css">
+    <style>#lektor-edit-link {display:none;}</style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+      
+      <section data-markdown data-separator="^\n\n">
+        
+## S_epi 05-28-17
+
+I&#39;ve downloaded the phylosignal R package (see Keck et al. 2016). I&#39;ve also installed the R packrat packge manager to keep R project environments seperate from each other. 
+
+To initialize a packrat environment I ran 
+
+	packrat::init(&#34;~/Dropbox/UCSF/Fischbach/S_epi&#34;)
+	
+Then installed packages into the packrat project directory and loaded them by calling 
+
+	install.packages(&#34;ape&#34;)
+	install.packages(&#34;phylobase&#34;)
+	install.packages(&#34;phylosignal&#34;)
+	library(ape)
+	library(phylobase)
+	library(phylosignal)
+	
+I&#39;ve run the phylosignal packge pipeline (at the the sample pipeline referenced in the paper on the sample dataset but now need to load up my own data that I want to use. 
+
+I can try making the data by hand since there isn&#39;t all that much of it (the tree portion at least) or I can try loading it up from a source and importing. Not sure what will be easier...
+
+&lt;https://galaxyproject.org/&gt;
+
+&lt;https://www.phylo.org/&gt;
+
+
+
+Importing tree data by hand
+----
+
+I had some trouble getting up to speed with generating the phylogenetic trees. I think it&#39;ll take me a while to reproduce the alignment from Conlan et al using PhyML. Matt gave me the links above that I think are worth checking out. Apparently RaxML is a more up to date way of generating phylogenetic trees and the two links above are hosted web servers (like insideDNA) where you can run pipelines remotely. For this specific dataset though I think I&#39;d rather just try to reproduce the tree data by hand and move on. 
+
+I&#39;ve downloaded a tree program called TreeGraph2 available at &lt;http://treegraph.bioinfweb.info/Help/wiki/Main_Page&gt;. It&#39;s been pretty solid and I was able to use it to recreate the Conlan et al. tree from the figure with the associated edge lengths. I created both a full version, faithful to the tree from the figure, and and a more compact version with just the species for which flow data exists (I&#39;m calling them master_ and data_ trees respectively). I&#39;ve preserved the lengths from the master_tree in the data_tree. I then exported both trees as Newick files.
+
+I then used the readNewick function from the phylobase package to import both trees into R:
+
+	data_tree = readNewick(&#34;S_epi_data_tree_tre&#34;)
+	master_tree = readNewick(&#34;S_epi_master_tree.tre&#34;)
+	
+I have this phylo4d object now and I now want to link each species to its respective value of CD8 activation. For this, I&#39;m scraping the plot figure. I&#39;ve scanned the plot to the webtool WebPlotDigitizer (&lt;http://arohatgi.info/WebPlotDigitizer&gt;). I&#39;m going in and picking out the data points by hand since the automatic data point scraping was way too generous with picking points. It didn&#39;t take too long for one plot (CD8B-IL17A activation counts) and I&#39;ve exported the values to a .csv file. 
+
+I&#39;m going in now and changing the x-coordinates in the .csv files to the actual names of the strain in the data since the x-values here are meaningless. I&#39;ve also realized that there is control data in these flow cytometry plots and none in the tree data, so I think I can just chuck out the control data? The only purpose it seems to be serving here is to compare the level of CD8 activation for the non-activating strains of S. Epi. I&#39;ll keep a version of the .csv file with the control data, labeld &#34;_with_control.csv&#34;. 
+
+I had to finagle the created phylotree object and the actual graph data to play nice together, but eventually got them in the same object. Whenever I would try to merge the read-in csv data with the phylo4d tree object, it wouldn&#39;t put the node data in the correct rows despite the labels. I&#39;m wasn&#39;t really sure how else to do it, so I just sorted the dataFrame (csv data) by node number (after adding node number to the csv file that corresponded to the same node numbers as in the phylo4d object and merged them together (though only adding the mean and std columns of the csv data). Also forgot to mention, I created a summary data frame of the csv data by calculating the mean and standard deviation of each group and saving them into columns. I&#39;ve saved the workspace in a folder called workspaces under the top-level S_epi directory (the worskpace is called 5-28-17). 
+
+
+      </section>
+      
+      </div>
+    </div>
+
+    <script src="../../../../static/lib/reveal/lib/js/head.min.js?h=8c9495c7"></script>
+    <script src="../../../../static/lib/reveal/js/reveal.js?h=19c4134c"></script>
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        center: false,
+        history: true,
+        margin: 0.2,
+        transition: 'fade', // none/fade/slide/convex/concave/zoom
+        transitionSpeed: 'fast', // default/fast/slow
+
+        menu: {
+            // Specifies which side of the presentation the menu will
+            // be shown. Use 'left' or 'right'.
+            side: 'left',
+
+            // Add slide numbers to the titles in the slide list.
+            // Use 'true' or format string (same as reveal.js slide numbers)
+            numbers: false,
+
+            // Specifies which slide elements will be used for generating
+            // the slide titles in the menu. The default selects the first
+            // heading element found in the slide, but you can specify any
+            // valid css selector and the text from the first matching
+            // element will be used.
+            // Note: that a section data-menu-title attribute or an element
+            // with a menu-title class will take precedence over this option
+            titleSelector: 'h1, h2, h3, h4, h5, h6',
+
+            // Hide slides from the menu that do not have a title.
+            // Set to 'true' to only list slides with titles.
+            hideMissingTitles: false,
+
+            // Add markers to the slide titles to indicate the
+            // progress through the presentation
+            markers: true,
+
+            // Specify custom panels to be included in the menu, by
+            // providing an array of objects with 'title', 'icon'
+            // properties, and either a 'src' or 'content' property.
+            custom: false,
+
+            // Specifies the themes that will be available in the themes
+            // menu panel. Set to 'false' to hide themes panel.
+            themes: [
+                { name: 'Black', theme: '/static/lib/reveal/css/theme/black.css' },
+                { name: 'White', theme: '/static/lib/reveal/css/theme/white.css' },
+                { name: 'League', theme: '/static/lib/reveal/css/theme/league.css' },
+                { name: 'Sky', theme: '/static/lib/reveal/css/theme/sky.css' },
+                { name: 'Solarized', theme: '/static/lib/reveal/css/theme/solarized.css' }
+            ],
+
+            // Specifies if the transitions menu panel will be shown.
+            transitions: true,
+
+            // Adds a menu button to the slides to open the menu panel.
+            // Set to 'false' to hide the button.
+            openButton: true,
+
+            // If 'true' allows the slide number in the presentation to
+            // open the menu panel. The reveal.js slideNumber option must
+            // be displayed for this to take effect
+            openSlideNumber: false,
+
+            // If true allows the user to open and navigate the menu using
+            // the keyboard. Standard keyboard interaction with reveal
+            // will be disabled while the menu is open.
+            keyboard: true
+        },
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [
+          { src: "../../../../static/lib/reveal/plugin/markdown/marked.js" },
+          { src: "../../../../static/lib/reveal/plugin/markdown/markdown.js" },
+          { src: "../../../../static/lib/reveal/plugin/menu/menu.js"},
+          { src: "../../../../static/lib/reveal/plugin/zoom-js/zoom.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/notes/notes.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/highlight/highlight.js", async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+      });
+    </script>
+
+    <a href=".." id="exit-slides-link"><i class="fa fa-close" aria-hidden="true"></i></a>
+  </body>
+</html>

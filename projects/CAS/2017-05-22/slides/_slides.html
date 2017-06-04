@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title></title>
+    <link rel="stylesheet" href="../../../../static/fonts/fa/css/font-awesome.min.css?h=512c7d79">
+    <link rel="stylesheet" href="/static/lib/reveal/css/reveal.css">
+    <link rel="stylesheet" href="/static/lib/reveal/css/theme/white.css" id="theme">
+    <link rel="stylesheet" href="/static/slides.css">
+    <style>#lektor-edit-link {display:none;}</style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+      
+      <section data-markdown data-separator="^\n\n">
+        
+## CAS 05-22-17
+
+So going back into the Bokeh code for HSV it looks like the end result I need to plug into the rectangle plot is a pandas dataFrame that will associate a color to each entry. Each entry here will be an element of the PFAM grid. 
+
+I think I should make a data_prep function like I did for HSV but make it generalizable to different PFAM domains. 
+
+I already have the blocks_to_array funciton in the existing CAS data_prep code, I think I can work off of that. 
+
+I&#39;ve set up the data_prep.py script in the top-level CAS folder that looks somewhat like the data_prep script from the HSV folder. A difference here is that the CAS data_prep script functions take a pfam target as an argument so that they can be called with various pfam key terms.
+
+I just created a folder called scripts in the CAS top-directory and threw all the python scripts in there to make things cleaner. Also saw that if you want to import python functions/scripts from somewhere else (another folder) can do
+
+	from application.app.folder.file import func_name
+	
+**as long as you have a file called __init.py__ inside of that folder**. __init.py__ tells python that the directory can be treated like a package.
+
+I&#39;ve gotten the basic bokeh heatmap plot showing up, now just need to work on the color mapping
+
+Color Mapping
+----
+
+Now need to define a color map for the bokeh plot. I can get the key terms as defined in the key_terms file for the pfam_target directory. All I need to do I think is to white out the non-key-term pfam_id entries. 
+
+Also, added .txt extension to key_terms so that I can see the contents in preview. And I am going to rearrange the get_key_terms function so that I can just feed it a pfam_target argument and it will autmatically get the key terms. 
+
+
+Just looked online and found a python module on pypi that plugs python in to Cynthia Brewer&#39;s colorbrewer website in a straightforward way. It&#39;s called brewer2mpl and I installed it into my fischbach conda environment using pip install. 
+
+
+
+Looks like it&#39;s working alright now. I have another heatmap that looks like the HSV one. I think at this point it might be worth taking a second to try to upload these to the notebook? I&#39;m still not sure what the best way of presenting these is, but I think that the bokeh output is a static html file which should plug pretty easily into the lektor notebook format. 
+
+      </section>
+      
+      </div>
+    </div>
+
+    <script src="../../../../static/lib/reveal/lib/js/head.min.js?h=8c9495c7"></script>
+    <script src="../../../../static/lib/reveal/js/reveal.js?h=19c4134c"></script>
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        center: false,
+        history: true,
+        margin: 0.2,
+        transition: 'fade', // none/fade/slide/convex/concave/zoom
+        transitionSpeed: 'fast', // default/fast/slow
+
+        menu: {
+            // Specifies which side of the presentation the menu will
+            // be shown. Use 'left' or 'right'.
+            side: 'left',
+
+            // Add slide numbers to the titles in the slide list.
+            // Use 'true' or format string (same as reveal.js slide numbers)
+            numbers: false,
+
+            // Specifies which slide elements will be used for generating
+            // the slide titles in the menu. The default selects the first
+            // heading element found in the slide, but you can specify any
+            // valid css selector and the text from the first matching
+            // element will be used.
+            // Note: that a section data-menu-title attribute or an element
+            // with a menu-title class will take precedence over this option
+            titleSelector: 'h1, h2, h3, h4, h5, h6',
+
+            // Hide slides from the menu that do not have a title.
+            // Set to 'true' to only list slides with titles.
+            hideMissingTitles: false,
+
+            // Add markers to the slide titles to indicate the
+            // progress through the presentation
+            markers: true,
+
+            // Specify custom panels to be included in the menu, by
+            // providing an array of objects with 'title', 'icon'
+            // properties, and either a 'src' or 'content' property.
+            custom: false,
+
+            // Specifies the themes that will be available in the themes
+            // menu panel. Set to 'false' to hide themes panel.
+            themes: [
+                { name: 'Black', theme: '/static/lib/reveal/css/theme/black.css' },
+                { name: 'White', theme: '/static/lib/reveal/css/theme/white.css' },
+                { name: 'League', theme: '/static/lib/reveal/css/theme/league.css' },
+                { name: 'Sky', theme: '/static/lib/reveal/css/theme/sky.css' },
+                { name: 'Solarized', theme: '/static/lib/reveal/css/theme/solarized.css' }
+            ],
+
+            // Specifies if the transitions menu panel will be shown.
+            transitions: true,
+
+            // Adds a menu button to the slides to open the menu panel.
+            // Set to 'false' to hide the button.
+            openButton: true,
+
+            // If 'true' allows the slide number in the presentation to
+            // open the menu panel. The reveal.js slideNumber option must
+            // be displayed for this to take effect
+            openSlideNumber: false,
+
+            // If true allows the user to open and navigate the menu using
+            // the keyboard. Standard keyboard interaction with reveal
+            // will be disabled while the menu is open.
+            keyboard: true
+        },
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [
+          { src: "../../../../static/lib/reveal/plugin/markdown/marked.js" },
+          { src: "../../../../static/lib/reveal/plugin/markdown/markdown.js" },
+          { src: "../../../../static/lib/reveal/plugin/menu/menu.js"},
+          { src: "../../../../static/lib/reveal/plugin/zoom-js/zoom.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/notes/notes.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/highlight/highlight.js", async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+      });
+    </script>
+
+    <a href=".." id="exit-slides-link"><i class="fa fa-close" aria-hidden="true"></i></a>
+  </body>
+</html>

@@ -1,0 +1,232 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title></title>
+    <link rel="stylesheet" href="../../../../static/fonts/fa/css/font-awesome.min.css?h=512c7d79">
+    <link rel="stylesheet" href="/static/lib/reveal/css/reveal.css">
+    <link rel="stylesheet" href="/static/lib/reveal/css/theme/white.css" id="theme">
+    <link rel="stylesheet" href="/static/slides.css">
+    <style>#lektor-edit-link {display:none;}</style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+      
+      <section data-markdown data-separator="^\n\n">
+        
+## S_epi 5-29-17
+
+Continuing from yesterday, when I called barplot.phylo4d on the aggregated tree with count data, it produced a barplot. But when I called phyloSignal on the tree to get summary statistics, it gave me an error saying that some inverse matrix didn&#39;t exist. 
+
+I&#39;m not sure where this is coming from, but the only thing I could really guess was that maybe it was coming from the existence of a few negative counts data points. Because of the data scraping there were two points scraped from the graph that have negative counts for CD8B-IL17A positive cells. This is not possible. So I went back in and changed the two negative counts to be 1e-12. I&#39;ve re-done what I did yesterday, saving and loading csv&#39;s and adding nodes to the summary csv. For reference, once I have the node data, here&#39;s the command I&#39;ve used to sort by node:
+
+	df_sorted = df[order(df[,1]), ]
+	
+where node is the first column of df. Now to merge with data_tree. First, grabbing the last two columns of df_sorted:
+
+	df_pruned = df_sorted[ , 3:4]
+	
+So when I&#39;ve tried merging into a final data tree with addData, it&#39;s not working. The indices in the sorted version are still rearranged and it&#39;s adding to the rows by index...
+
+So to reset the indices in df_sorted, I&#39;ve done:
+
+	rownames(df_sorted) &lt;- NULL
+	
+then re-making df_pruned and calling 
+	
+	tree_final = addData(data_tree, df_pruned)
+
+and that looks like its worked. Now I&#39;ve re-called phyloSignal...and I get the same error.
+
+	error: inv(): matrix seems singular	
+	Error in FUN(newX[, i], ...) : inv(): matrix seems singular
+	
+I&#39;ve called the phyloCorrelogram functions on mean and sd:
+
+	mean.cg &lt;- phyloCorrelogram(tree_final, trait = &#34;mean&#34;)
+	sd.cg &lt;- phyloCorrelogram(tree_final, trait = &#39;sd&#39;)
+	
+and plotted the results:
+
+	plot(mean.cg)
+	plot(sd.cg)
+	
+both are not flat which is a good sign. But how can I get back to the actual genome data from here?
+
+Orthomcl on S. Epi Data
+------
+I think a decent first-pass here could be to re-run the orthomcl pipeline on the S. Epi data. 
+
+I&#39;ve copied over the shell scripts I wrote from HSV and have made some modifications. I&#39;ve also copied over the genbank_to_fasta python script and made a change so that when there&#39;s a missing protein qualifier or annotation, it adds the corresponding line number (protein number?) to the output fasta file. This is because when I&#39;m running the script to make the output fasta files compliant with orthomcl, the script is crashing on the output fasta files with multiple protein_ids that are identically &#39;missing_protein_qualifer&#39;. 
+
+I&#39;ve run into an issue with the all-vs-all blast. I wrote shell script 4 that initializes the blastdb and runs an all-vs-all blast. I started the all-vs-all blast around 3:30pm and it&#39;s 7:10pm now and it&#39;s still running...
+
+Back to phylogenetic regression
+---
+I&#39;ve found a decent link here:
+
+&lt;http://www.mpcm-evolution.org/OPM/Chapter5_OPM/OPM_chap5.pdf&gt;
+
+that I&#39;ve been working off of. I have the phylosignal package working and I think some of the results are similar? At least in terms of showing that there&#39;s some phylogenetic signal there. But I want a prediction of which genes are responsible. 
+
+So I&#39;ve gone back into python and written a script called analyze_pfams.py. This goes into the generated pfam files for the S_epi strains for which data exists and scrapes them for interesting pfams to look at. The details of the way in which the pfams are picked can be changed pretty easily in the script, right now I have it in the following way:
+
+First go through all the pfd files for strains involved in flow data and get every pfam that&#39;s in there. Every time I see a pfam in one of the files I count it. I then normalize so that for every strain I have a normalized count for the frequency of appearance for a given pfam term in that species&#39;s genome. 
+
+Next, I save the normalized frequencies for all the strains for each pfam. I calculate the mean frequency and standard deviation, as well as which strains the pfam_id shows up in. 
+
+Finally, to pick which pfams to move foward with, I save the pfam_ids with the following conditions:
+
+
+			if num_positive == 0 and num_negative == 3:
+				to_append = True
+			if num_negative == 0:
+				to_append = True
+			if abs(mean_negative - mean_positive) &gt; (pfam_std * 10):
+				to_append = True
+				
+Note that as far as I can tell, the dominating condition here is the last one (pfam_std * 10). It might be worth quantifying this in a bit. 
+
+I write these all out as a .csv file (named &#39;interesting_pfams.csv&#39;). I&#39;ve imported this data back into R so that for each of the six strains, there is an associated frequency (I&#39;m ignoring std for now) for each pfam_id. I have the associated counts as well. I&#39;ve merged this data into a unified data.frame called df_merged (after wrestling around with the row names). And this plugs pretty nicely into the workflow here:
+
+&lt;http://www.mpcm-evolution.org/OPM/Chapter5_OPM/OPM_chap5.pdf&gt;
+
+I can get the individual plots of a single pfam_id vs CD8B_IL17A counts by using the following command:
+
+	with(df_merged, plot(TetR_C_8 ~ mean, xlab = &#34;TetR_C_8&#34;, ylab = &#34;mean counts&#34;, main = &#34;TetR_C_8 vs CD8B_IL17A Activation&#34;))
+	
+Where in this case I&#39;m plotting TetR_C_8 (which for the record looks decent?) But it looks like the p-value isn&#39;t all that high.
+
+Well...while trying to sort that out, R just crashed. Gotta do a better job of saving workspaces as I go along. I&#39;m trying to get back to the point where I was. I&#39;m just running into an issue mergning again.  
+
+After a lot of finagling I&#39;ve gotten a linear fit with brownian phylogenetic correction for the top (~150?) pfams that were chosen with the python script. Gonna paste the important commands here but also save a copy of the workspace and history into this post.
+
+	residuals_mat &lt;- matrix(NA, ncol = (dim(dat)[2]), nrow=1)
+	colnames(residuals_mat) &lt;- colnames(dat)
+	residuals_mat
+	residuals_mat &lt;- residuals_mat[ , -1]
+	residuals_mat
+
+	for (i in 2:(dim(dat)[2])) {
+		form &lt;- formula(paste(names(dat)[i], &#34; ~ mean&#34;))
+		this.fit &lt;- gls(form, data=dat, correlation=corBrownian(phy=tree))
+		residuals_mat[i - 1] &lt;- attributes(residuals(this.fit))$std[1]
+	}
+	
+Anyways...I&#39;m getting too tired to write out all the commands specifically. But most of the source was adapted from the link above. The variables are saved to the workspace. Important things there are **tree** (loaded from tree file), **dat** = **df_merged** (merged data), **df_residuals** (calculated residuals for pfam ids) **tree_final** (phylo4d merged data with summary statistics of count data for use in phylosignal package). I also wrote the residuals file to a .csv so I have them seperately. By residuals I mean Residual standard error for example in this summary:
+
+	Generalized least squares fit by REML
+	  Model: Phage_H_T_join ~ mean 
+	  Data: dat 
+	  Log-restricted-likelihood: 49.05774
+	
+	Coefficients:
+	  (Intercept)          mean 
+	-8.143699e-05  8.619997e-04 
+	
+	Correlation Structure: corBrownian
+	 Formula: ~1 
+	 Parameter estimate(s):
+	numeric(0)
+	Degrees of freedom: 6 total; 4 residual
+	Residual standard error: 0.0002399488 
+	
+Now that I&#39;m plotting the lowest residual pfams, it looks like that isn&#39;t the metric I want to use. The low residual pfams (at least the ones I&#39;m looking at) have all the points at zero counts (so that the counts are independent of the pfam in question. But the residuals are low because the best-fit line is just a straight line through the data. I need to look at another metric...maybe the p-value from the anova summary?
+
+So I went through a similar process, now a couple of new variables:
+**df_pvals_sorted_1** and **df_pvals_sorted_2** are the pfam ids sorted either by mean_pval or intercept_pval. It looks like there are two terms that are sort of at the top of both lists? One is the denaturase...and the other is DEDD_Tnp_IS110
+
+
+      </section>
+      
+      </div>
+    </div>
+
+    <script src="../../../../static/lib/reveal/lib/js/head.min.js?h=8c9495c7"></script>
+    <script src="../../../../static/lib/reveal/js/reveal.js?h=19c4134c"></script>
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        center: false,
+        history: true,
+        margin: 0.2,
+        transition: 'fade', // none/fade/slide/convex/concave/zoom
+        transitionSpeed: 'fast', // default/fast/slow
+
+        menu: {
+            // Specifies which side of the presentation the menu will
+            // be shown. Use 'left' or 'right'.
+            side: 'left',
+
+            // Add slide numbers to the titles in the slide list.
+            // Use 'true' or format string (same as reveal.js slide numbers)
+            numbers: false,
+
+            // Specifies which slide elements will be used for generating
+            // the slide titles in the menu. The default selects the first
+            // heading element found in the slide, but you can specify any
+            // valid css selector and the text from the first matching
+            // element will be used.
+            // Note: that a section data-menu-title attribute or an element
+            // with a menu-title class will take precedence over this option
+            titleSelector: 'h1, h2, h3, h4, h5, h6',
+
+            // Hide slides from the menu that do not have a title.
+            // Set to 'true' to only list slides with titles.
+            hideMissingTitles: false,
+
+            // Add markers to the slide titles to indicate the
+            // progress through the presentation
+            markers: true,
+
+            // Specify custom panels to be included in the menu, by
+            // providing an array of objects with 'title', 'icon'
+            // properties, and either a 'src' or 'content' property.
+            custom: false,
+
+            // Specifies the themes that will be available in the themes
+            // menu panel. Set to 'false' to hide themes panel.
+            themes: [
+                { name: 'Black', theme: '/static/lib/reveal/css/theme/black.css' },
+                { name: 'White', theme: '/static/lib/reveal/css/theme/white.css' },
+                { name: 'League', theme: '/static/lib/reveal/css/theme/league.css' },
+                { name: 'Sky', theme: '/static/lib/reveal/css/theme/sky.css' },
+                { name: 'Solarized', theme: '/static/lib/reveal/css/theme/solarized.css' }
+            ],
+
+            // Specifies if the transitions menu panel will be shown.
+            transitions: true,
+
+            // Adds a menu button to the slides to open the menu panel.
+            // Set to 'false' to hide the button.
+            openButton: true,
+
+            // If 'true' allows the slide number in the presentation to
+            // open the menu panel. The reveal.js slideNumber option must
+            // be displayed for this to take effect
+            openSlideNumber: false,
+
+            // If true allows the user to open and navigate the menu using
+            // the keyboard. Standard keyboard interaction with reveal
+            // will be disabled while the menu is open.
+            keyboard: true
+        },
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [
+          { src: "../../../../static/lib/reveal/plugin/markdown/marked.js" },
+          { src: "../../../../static/lib/reveal/plugin/markdown/markdown.js" },
+          { src: "../../../../static/lib/reveal/plugin/menu/menu.js"},
+          { src: "../../../../static/lib/reveal/plugin/zoom-js/zoom.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/notes/notes.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/highlight/highlight.js", async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+      });
+    </script>
+
+    <a href=".." id="exit-slides-link"><i class="fa fa-close" aria-hidden="true"></i></a>
+  </body>
+</html>

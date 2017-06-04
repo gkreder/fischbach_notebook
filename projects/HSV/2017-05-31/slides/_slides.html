@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title></title>
+    <link rel="stylesheet" href="../../../../static/fonts/fa/css/font-awesome.min.css?h=512c7d79">
+    <link rel="stylesheet" href="/static/lib/reveal/css/reveal.css">
+    <link rel="stylesheet" href="/static/lib/reveal/css/theme/white.css" id="theme">
+    <link rel="stylesheet" href="/static/slides.css">
+    <style>#lektor-edit-link {display:none;}</style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+      
+      <section data-markdown data-separator="^\n\n">
+        
+## HSV 05-31-2017
+
+I&#39;ve run into a point with the bokeh plots where I really think I&#39;m gonna lose more time at this point than is worth losing. I&#39;ve implemented the slider and I&#39;ve generated orthomcl datasets for a range of different inflation values. The problem is getting the rectFig to update every time I move the slider. I&#39;ve been able to feed the different source data into the slider callback method but when I try to update, it looks for source data that wasn&#39;t actually included in the static html? I think that&#39;s because when I initialize the actual page, the html document gets written such that the only included source data is the one that is used to initialize the rectangle figure.
+
+I need to think about how to incorporate all the different inflation value source data into the static html that gets initialized, but that&#39;s gonna take a little longer. In the meantime, I think the best thing to do is at least summarize the results I&#39;ve gotten so far in some sort of presentable way for next week. With that in mind, I&#39;ve written a script, analyze_groups.py that&#39;s taking all the group data and churning around with it. I&#39;ve also copied some of the code I wrote earlier (in fetch_test.py) and put it in a script in the HSV scripts folder called fetch_uniprot.py. I&#39;ve also written a couple of object definitions in groups_objects.py to make things a little cleaner. As part of putting together all the data, I want to scrape the uniprot data for the relevant proteins. 
+
+Unfound Proteins
+-----
+I&#39;m keeping track of which proteins aren&#39;t returning any results from uniprot. They all have names like  NP_042969.2, starting with NP. For these, I&#39;m just going to force a record_dict that is empty (or says something like &#39;unknown&#39;). 
+
+Fixing Bug in Uniprot.py
+---
+Incorporating the uniprot data into the groups data is going fine so far, but I&#39;ve run into a bug in the uniprot code:
+
+	File &#34;/Users/student/miniconda3/envs/fischbach/lib/python3.6/site-packages/Bio/SeqIO/UniprotIO.py&#34;, line 254, in _parse_comment
+
+		append_to_annotations(ann_key, interact_element.attrib[&#39;intactId&#39;])
+	KeyError: &#39;intactId&#39;
+	
+	
+I&#39;m going into the source code of Uniprot.py and catching this error. I&#39;m only going to change the code in the fischbach virtual envirinment version (located at /Users/student/miniconda3/envs/fischbach/lib/python3.6/site-packages/Bio/SeqIO/UniprotIO.py). 
+
+All I&#39;ve done is add a conditional in the source code on line 254:
+
+	# Added by Gabe Reder - 5/31/17
+	if &#39;intactId&#39; in interact_element.attrib:
+		append_to_annotations(ann_key, interact_element.attrib[&#39;intactId&#39;])
+		
+So far it looks like that has taken care of the crash and the code is continuing to run now. Finished and got the resulting data in a pkl file
+
+      </section>
+      
+      </div>
+    </div>
+
+    <script src="../../../../static/lib/reveal/lib/js/head.min.js?h=8c9495c7"></script>
+    <script src="../../../../static/lib/reveal/js/reveal.js?h=19c4134c"></script>
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        center: false,
+        history: true,
+        margin: 0.2,
+        transition: 'fade', // none/fade/slide/convex/concave/zoom
+        transitionSpeed: 'fast', // default/fast/slow
+
+        menu: {
+            // Specifies which side of the presentation the menu will
+            // be shown. Use 'left' or 'right'.
+            side: 'left',
+
+            // Add slide numbers to the titles in the slide list.
+            // Use 'true' or format string (same as reveal.js slide numbers)
+            numbers: false,
+
+            // Specifies which slide elements will be used for generating
+            // the slide titles in the menu. The default selects the first
+            // heading element found in the slide, but you can specify any
+            // valid css selector and the text from the first matching
+            // element will be used.
+            // Note: that a section data-menu-title attribute or an element
+            // with a menu-title class will take precedence over this option
+            titleSelector: 'h1, h2, h3, h4, h5, h6',
+
+            // Hide slides from the menu that do not have a title.
+            // Set to 'true' to only list slides with titles.
+            hideMissingTitles: false,
+
+            // Add markers to the slide titles to indicate the
+            // progress through the presentation
+            markers: true,
+
+            // Specify custom panels to be included in the menu, by
+            // providing an array of objects with 'title', 'icon'
+            // properties, and either a 'src' or 'content' property.
+            custom: false,
+
+            // Specifies the themes that will be available in the themes
+            // menu panel. Set to 'false' to hide themes panel.
+            themes: [
+                { name: 'Black', theme: '/static/lib/reveal/css/theme/black.css' },
+                { name: 'White', theme: '/static/lib/reveal/css/theme/white.css' },
+                { name: 'League', theme: '/static/lib/reveal/css/theme/league.css' },
+                { name: 'Sky', theme: '/static/lib/reveal/css/theme/sky.css' },
+                { name: 'Solarized', theme: '/static/lib/reveal/css/theme/solarized.css' }
+            ],
+
+            // Specifies if the transitions menu panel will be shown.
+            transitions: true,
+
+            // Adds a menu button to the slides to open the menu panel.
+            // Set to 'false' to hide the button.
+            openButton: true,
+
+            // If 'true' allows the slide number in the presentation to
+            // open the menu panel. The reveal.js slideNumber option must
+            // be displayed for this to take effect
+            openSlideNumber: false,
+
+            // If true allows the user to open and navigate the menu using
+            // the keyboard. Standard keyboard interaction with reveal
+            // will be disabled while the menu is open.
+            keyboard: true
+        },
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [
+          { src: "../../../../static/lib/reveal/plugin/markdown/marked.js" },
+          { src: "../../../../static/lib/reveal/plugin/markdown/markdown.js" },
+          { src: "../../../../static/lib/reveal/plugin/menu/menu.js"},
+          { src: "../../../../static/lib/reveal/plugin/zoom-js/zoom.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/notes/notes.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/highlight/highlight.js", async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+      });
+    </script>
+
+    <a href=".." id="exit-slides-link"><i class="fa fa-close" aria-hidden="true"></i></a>
+  </body>
+</html>

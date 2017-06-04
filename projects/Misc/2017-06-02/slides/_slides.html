@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title></title>
+    <link rel="stylesheet" href="../../../../static/fonts/fa/css/font-awesome.min.css?h=512c7d79">
+    <link rel="stylesheet" href="/static/lib/reveal/css/reveal.css">
+    <link rel="stylesheet" href="/static/lib/reveal/css/theme/white.css" id="theme">
+    <link rel="stylesheet" href="/static/slides.css">
+    <style>#lektor-edit-link {display:none;}</style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+      
+      <section data-markdown data-separator="^\n\n">
+        
+## 06-02-17
+
+
+SVG functionality was just added a few days ago to the latest dev version of bokeh (0.12.7). 
+http://bokeh.pydata.org/en/dev/docs/user_guide/export.html
+
+I&#39;ve created a conda environment called bokeh_env
+
+I&#39;ve also installed the chrome plugin found here:
+&lt;http://nytimes.github.io/svg-crowbar/&gt;
+
+I&#39;ve also had to install a few new dependencies (besides the core bokeh ones) into the bokeh_env:
+
+	conda install phantomjs
+	conda install pillow
+	easy_install selenium
+	
+I&#39;m not sure abou tthe selenium one. The dev documentation for Bokeh says that I should be able to conda install but there are no selenium packages found in the osx 64 bit channel for conda. Is it good enough to easy_install?
+
+I&#39;ve also added an extra import statement into the code:
+
+	from bokeh.io import export
+
+and the line
+
+	line.output_backend = &#34;svg&#34;
+	
+where line is the plot I&#39;m testing on. When I do all this and show the plot in chrome and use svg-crowbar to save the image, it does grab the image and save it. When I try to export programatically by saying:
+
+	export(line, filename=&#39;test_out.svg&#39;)
+	
+I get an error:
+
+	Traceback (most recent call last):
+  File &#34;/Users/student/miniconda3/envs/bokeh_env/lib/python3.6/site-packages/PIL/Image.py&#34;, line 1809, in save
+    format = EXTENSION[ext]
+KeyError: &#39;.svg&#39;
+
+During handling of the above exception, another exception occurred:
+
+	Traceback (most recent call last):
+	  File &#34;analyze_groups.py&#34;, line 156, in &lt;module&gt;
+	    plot_inflation_values()
+	  File &#34;analyze_groups.py&#34;, line 148, in plot_inflation_values
+	    export(line, filename=&#39;test_out.svg&#39;)
+	  File &#34;/Users/student/miniconda3/envs/bokeh_env/lib/python3.6/site-packages/bokeh/io.py&#34;, line 658, in export
+	    image.save(filename)
+	  File &#34;/Users/student/miniconda3/envs/bokeh_env/lib/python3.6/site-packages/PIL/Image.py&#34;, line 1811, in save
+	    raise ValueError(&#39;unknown file extension: {}&#39;.format(ext))
+	ValueError: unknown file extension: .svg
+	
+Which is not a huge deal since when I just call 
+
+	show(lines)
+
+having set the output backend to svg and I click the save button on the toolbar, it saves as an svg
+
+	
+
+      </section>
+      
+      </div>
+    </div>
+
+    <script src="../../../../static/lib/reveal/lib/js/head.min.js?h=8c9495c7"></script>
+    <script src="../../../../static/lib/reveal/js/reveal.js?h=19c4134c"></script>
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        center: false,
+        history: true,
+        margin: 0.2,
+        transition: 'fade', // none/fade/slide/convex/concave/zoom
+        transitionSpeed: 'fast', // default/fast/slow
+
+        menu: {
+            // Specifies which side of the presentation the menu will
+            // be shown. Use 'left' or 'right'.
+            side: 'left',
+
+            // Add slide numbers to the titles in the slide list.
+            // Use 'true' or format string (same as reveal.js slide numbers)
+            numbers: false,
+
+            // Specifies which slide elements will be used for generating
+            // the slide titles in the menu. The default selects the first
+            // heading element found in the slide, but you can specify any
+            // valid css selector and the text from the first matching
+            // element will be used.
+            // Note: that a section data-menu-title attribute or an element
+            // with a menu-title class will take precedence over this option
+            titleSelector: 'h1, h2, h3, h4, h5, h6',
+
+            // Hide slides from the menu that do not have a title.
+            // Set to 'true' to only list slides with titles.
+            hideMissingTitles: false,
+
+            // Add markers to the slide titles to indicate the
+            // progress through the presentation
+            markers: true,
+
+            // Specify custom panels to be included in the menu, by
+            // providing an array of objects with 'title', 'icon'
+            // properties, and either a 'src' or 'content' property.
+            custom: false,
+
+            // Specifies the themes that will be available in the themes
+            // menu panel. Set to 'false' to hide themes panel.
+            themes: [
+                { name: 'Black', theme: '/static/lib/reveal/css/theme/black.css' },
+                { name: 'White', theme: '/static/lib/reveal/css/theme/white.css' },
+                { name: 'League', theme: '/static/lib/reveal/css/theme/league.css' },
+                { name: 'Sky', theme: '/static/lib/reveal/css/theme/sky.css' },
+                { name: 'Solarized', theme: '/static/lib/reveal/css/theme/solarized.css' }
+            ],
+
+            // Specifies if the transitions menu panel will be shown.
+            transitions: true,
+
+            // Adds a menu button to the slides to open the menu panel.
+            // Set to 'false' to hide the button.
+            openButton: true,
+
+            // If 'true' allows the slide number in the presentation to
+            // open the menu panel. The reveal.js slideNumber option must
+            // be displayed for this to take effect
+            openSlideNumber: false,
+
+            // If true allows the user to open and navigate the menu using
+            // the keyboard. Standard keyboard interaction with reveal
+            // will be disabled while the menu is open.
+            keyboard: true
+        },
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [
+          { src: "../../../../static/lib/reveal/plugin/markdown/marked.js" },
+          { src: "../../../../static/lib/reveal/plugin/markdown/markdown.js" },
+          { src: "../../../../static/lib/reveal/plugin/menu/menu.js"},
+          { src: "../../../../static/lib/reveal/plugin/zoom-js/zoom.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/notes/notes.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/highlight/highlight.js", async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+      });
+    </script>
+
+    <a href=".." id="exit-slides-link"><i class="fa fa-close" aria-hidden="true"></i></a>
+  </body>
+</html>

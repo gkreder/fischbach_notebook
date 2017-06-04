@@ -1,0 +1,195 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="../../../static/favicon.ico?h=e38ef9dd">
+<link rel="stylesheet" href="../../../static/lib/normalize.css?h=ece571f3">
+<link rel="stylesheet" href="../../../static/lib/skeleton.css?h=1fd77917">
+<link rel="stylesheet" href="../../../static/style.css?h=5db9e889">
+<link rel="stylesheet" href="../../../static/lib/medium-editor/medium-editor.min.css?h=17e98ac9">
+<link rel="stylesheet" href="../../../static/fonts/anonymous-pro/anonymous-pro.css?h=7b3d4039">
+<link rel="stylesheet" href="../../../static/fonts/fa/css/font-awesome.min.css?h=512c7d79">
+<link rel="stylesheet" href="../../../static/fonts/ionicons/css/ionicons.min.css?h=f0459300">
+<link rel="stylesheet" href="../../../static/fonts/source-sans-pro/source-sans-pro.css?h=eef2e813">
+
+<!-- <script src="../../../static/lib/clipboard.min.js?h=64efc85d"></script> -->
+<script src="../../../static/lib/jquery-2.2.1.min.js?h=7cb05e3d"></script>
+<script src="../../../static/lib/marked.js?h=acaa528b"></script>
+<script src="../../../static/lib/MooTools-Core-1.6.0.js?h=f829fe22"></script>
+<script src="../../../static/lib/sprintf.js?h=f8d59971"></script>
+<script src="../../../static/lib/medium-editor/medium-editor.min.js?h=d2c3e1bb"></script>
+<script src="../../../static/lib/me-markdown.standalone.min.js?h=f8bd91a7"></script>
+<script src="../../../static/lr-notebook.js?h=9fb07e66"></script>
+
+
+<title></title>
+<body>
+  <header>
+    <h1><i class="fa fa-sticky-note-o"></i> nb-Gabe_Fischbach</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a  href="../../../">Welcome</a></li>
+        
+          <li><a  class="active" href="../../../projects/">Projects</a></li>
+        
+          <li><a  href="../../../calendar/">Calendar</a></li>
+        
+          <li><a  href="../../../meetings/">Meetings</a></li>
+        
+          <li><a  href="../../../about/">About</a></li>
+        
+          <li><a  href="../../../shared/">Shared</a></li>
+        
+      </ul>
+    </nav>
+    
+  </header>
+
+  <iframe width="0" height="0" border="0" name="frame" style="border-style: none;"></iframe>
+
+  <div class="page">
+    
+<h2 style="display: inline;"><a class="orange" href="../../../projects/S_epi/">S_epi/</a></h2><br>
+<form target="frame" action="/admin/api/browsefs" method="post">
+  <input type="hidden" name="path" value="/projects/S_epi/2017-05-28">
+  <input type="image" src=../../../static/images/link.png>
+</form>
+<h2 class="lightblue" style="display: inline;">Using phylosignal package and scraping from Erin slides</h2> <span style="float:right;" class="midgray">2017-05-28</span> 
+<hr>
+
+
+
+
+
+
+<div id="entry">
+    <h2>S_epi 05-28-17</h2>
+<p>I've downloaded the phylosignal R package (see Keck et al. 2016). I've also installed the R packrat packge manager to keep R project environments seperate from each other.</p>
+<p>To initialize a packrat environment I ran</p>
+<pre><code>packrat::init("~/Dropbox/UCSF/Fischbach/S_epi")
+</code></pre>
+<p>Then installed packages into the packrat project directory and loaded them by calling</p>
+<pre><code>install.packages("ape")
+install.packages("phylobase")
+install.packages("phylosignal")
+library(ape)
+library(phylobase)
+library(phylosignal)
+</code></pre>
+<p>I've run the phylosignal packge pipeline (at the the sample pipeline referenced in the paper on the sample dataset but now need to load up my own data that I want to use.</p>
+<p>I can try making the data by hand since there isn't all that much of it (the tree portion at least) or I can try loading it up from a source and importing. Not sure what will be easier...</p>
+<p><a href="https://galaxyproject.org/">https://galaxyproject.org/</a></p>
+<p><a href="https://www.phylo.org/">https://www.phylo.org/</a></p>
+<h2>Importing tree data by hand</h2>
+<p>I had some trouble getting up to speed with generating the phylogenetic trees. I think it'll take me a while to reproduce the alignment from Conlan et al using PhyML. Matt gave me the links above that I think are worth checking out. Apparently RaxML is a more up to date way of generating phylogenetic trees and the two links above are hosted web servers (like insideDNA) where you can run pipelines remotely. For this specific dataset though I think I'd rather just try to reproduce the tree data by hand and move on.</p>
+<p>I've downloaded a tree program called TreeGraph2 available at <a href="http://treegraph.bioinfweb.info/Help/wiki/Main_Page">http://treegraph.bioinfweb.info/Help/wiki/Main_Page</a>. It's been pretty solid and I was able to use it to recreate the Conlan et al. tree from the figure with the associated edge lengths. I created both a full version, faithful to the tree from the figure, and and a more compact version with just the species for which flow data exists (I'm calling them master<em> and data</em> trees respectively). I've preserved the lengths from the master_tree in the data_tree. I then exported both trees as Newick files.</p>
+<p>I then used the readNewick function from the phylobase package to import both trees into R:</p>
+<pre><code>data_tree = readNewick("S_epi_data_tree_tre")
+master_tree = readNewick("S_epi_master_tree.tre")
+</code></pre>
+<p>I have this phylo4d object now and I now want to link each species to its respective value of CD8 activation. For this, I'm scraping the plot figure. I've scanned the plot to the webtool WebPlotDigitizer (<a href="http://arohatgi.info/WebPlotDigitizer">http://arohatgi.info/WebPlotDigitizer</a>). I'm going in and picking out the data points by hand since the automatic data point scraping was way too generous with picking points. It didn't take too long for one plot (CD8B-IL17A activation counts) and I've exported the values to a .csv file.</p>
+<p>I'm going in now and changing the x-coordinates in the .csv files to the actual names of the strain in the data since the x-values here are meaningless. I've also realized that there is control data in these flow cytometry plots and none in the tree data, so I think I can just chuck out the control data? The only purpose it seems to be serving here is to compare the level of CD8 activation for the non-activating strains of S. Epi. I'll keep a version of the .csv file with the control data, labeld "_with_control.csv".</p>
+<p>I had to finagle the created phylotree object and the actual graph data to play nice together, but eventually got them in the same object. Whenever I would try to merge the read-in csv data with the phylo4d tree object, it wouldn't put the node data in the correct rows despite the labels. I'm wasn't really sure how else to do it, so I just sorted the dataFrame (csv data) by node number (after adding node number to the csv file that corresponded to the same node numbers as in the phylo4d object and merged them together (though only adding the mean and std columns of the csv data). Also forgot to mention, I created a summary data frame of the csv data by calculating the mean and standard deviation of each group and saving them into columns. I've saved the workspace in a folder called workspaces under the top-level S_epi directory (the worskpace is called 5-28-17).</p>
+
+</div>
+
+
+
+
+
+
+<pre style="display:none;" class="markdown"></pre>
+
+<script>
+  function renderRightAsMarkdown() {
+      var right = document.getElementsByClassName("right");
+      for (var i=0; i<right.length; i++) {
+          src = right[i].innerHTML
+          right[i].innerHTML = marked(src);
+      }
+  }
+  renderRightAsMarkdown();
+</script>
+
+
+
+
+<script>
+
+// Disable clipboard stuff for now
+// var pre = document.getElementsByTagName('pre');
+// for (var i = 0; i < pre.length; i++) {
+//   var button = document.createElement('button');
+//   button.className = 'btn fa fa-copy';
+//   pre[i].appendChild(button);
+// }
+
+// var clipboard = new Clipboard('.btn', {
+//   target: function(trigger) {return trigger.previousElementSibling;}
+// });
+
+// function showSuccess(elem){elem.setAttribute('class','btn fa fa-check');}
+// function sleep (time) {return new Promise((resolve) => setTimeout(resolve, time));}
+// clipboard.on('success',function(e){
+//   showSuccess(e.trigger);
+//   sleep(350).then(() => {e.clearSelection();
+//     e.trigger.setAttribute('class','btn fa fa-copy');})
+// });
+
+// Experimental direct editing
+
+// var paragraphs = $$("#entry>p");
+// var lastEl = paragraphs.getLast();
+// var path = '/projects/S_epi/2017-05-28';
+
+// paragraphs.each(function(el) {
+//   var dropArea = new Element('div', {'class':'right droparea',
+//                                      'ondrop':'drop(event, path)',
+//                                      'ondragover':'dragover_handler(event)'
+//                                      });
+//   var next = el.getNext();
+//   if (!!next && !next.hasClass('right')) {
+//     droptext = new Element('div', {'id':'targetString',
+//                                    styles:{display: 'none'},
+//                                    'html':el.get('html')
+//                                   });
+//     droptext.inject(dropArea);
+//     dropArea.inject(el, 'after');
+//   }
+// });
+
+// var rightimgs = $$("img.thumb");
+// rightimgs.each(function(el) {
+//   var button = document.createElement('button');
+//   button.className = 'btn fa fa-window-close';
+//   el.appendChild(button);
+// });
+
+// var markDownEl = document.querySelector(".markdown");
+
+// new MediumEditor($$("#entry>p"), {
+//     extensions: {markdown: new MeMarkdown(function (md) {markDownEl.textContent = md;})},
+//     toolbar: {
+//       allowMultiParagraphSelection: false,
+//       buttons: ['bold', 'italic', 'underline']
+//     },
+//     disableReturn: true,
+//     disableDoubleReturn: true,
+//     disableExtraSpaces: true,
+//     paste: {
+//         forcePlainText: true,
+//         cleanPastedHTML: true
+//     }
+// });
+
+</script>
+
+<a href="slides" id="play-slides-link"><i class="fa fa-play" aria-hidden="true"></i></a>
+
+
+  </div>
+
+  <footer>
+    &copy; 2016. Made with <a target="_new" href="http://bionano.ucsf.edu/"><i class="fa fa-sliders"></i></a> in SF.
+  </footer>
+
+</body>

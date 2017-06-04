@@ -23,7 +23,7 @@
 
 I wrote another sort shell script (check_REC.sh) that checks for unique hits of Cas9_REC keyword in each .pfd file. Uses the -q flag to look for first hit of keyword in file and piped the output of the script (printed file names) to wc -l. Got 158 hits and 158 hits for ls *.pfd | wc -l which, so I think that each file in there has at least one instance of Cas9_REC and some have more. It might be interesting to see which ones have more. Shell script code:
 
-~~~bash
+~~~
 #!/bin/bash
 
 cd all_pfam

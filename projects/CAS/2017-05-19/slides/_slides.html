@@ -39,6 +39,51 @@ pfam_term | pfam_term | HIT TERM | pfam_term | ...
 The adjacent pfam terms can be colored and sorted for visualization 
 
 
+Would this make sense to do with Bokeh? I already have something of a heatmap code up and running and could make some sense to use it...
+
+If I can integrate the generated Bokeh html into the lektor notebook then it might be worth it. 
+
+Adding Tab to Lektor Notebook
+-----
+
+If I just add a folder in the content directory of the lektor notebook, nothing seems to get added. If I go into the templates folder, I think it&#39;s because I need to add something to the actual layout .html file. 
+
+I&#39;ve created a backup copy of the layout.html file and modified the existing one. I&#39;ve added a tab called data that should link to ./content/data in the notebook file structure. 
+
+I copied over the contents.lr file from the projects page to the data folder and it looks to be fine in terms of the linking. The content.lr file is just linking to the projects model. So I think I may just have to create a new type of model for this page and link it to the Bokeh html file. 
+
+Just changed the new tab name to &#39;results&#39;
+
+
+I&#39;m creating a new model called &#39;results.ini&#39; (copied the projects.ini file and renamed it). I&#39;m giving it a child model like the projects.ini model has the project.ini child. Calling it result.ini
+
+I&#39;ve also created corresponding results.html and result.html files. 
+I&#39;m updated the results.html file but not seing updates on the rendered results page. I&#39;m going to put this down for now and come back to it when I have more data to be putting in there anyways.
+
+Heatmap data (heatmap.py)
+-----
+
+Back to the visualization. I&#39;m making a new scipt called heatmap.py that will render a grid/heatmap as described above. 
+
+I have pfam terms now concatenated into a single numpy array with dimensions (162, 51). I need to have a color mapping now. I think the way to do it is to count the number of unique pfam terms in the concatenated array and assign each one a unique int (do I need this or can I just straight to assigning each one a unique color?). I&#39;ll try assigning each one a unique integer first and spitting out a heatmap. 
+
+This works fine, but the heatmap is pretty unreadable (first_pass.png).
+
+
+Jakub suggested just coloring in the &#39;priveleged&#39; cas terms. e.g. cas1/2 and the nuclease terms. The rest of the random sort of colors aren&#39;t that important. 
+
+Coloring Key Terms
+-----
+
+I think the best way to do that will be to associate &#39;priveleged&#39; terms with each target pfam as a separate txt file in the data folder as blocks.out. 
+
+I&#39;m creating a file in the data directory just called &#39;key_terms&#39;. Each line in this file is going to be a pfam term (can be easily edited) and every pfam term in this file will get its own color. Otherwise, no colors for the rest of the terms. 
+
+It sounds like I&#39;ll have to do a little bit of data processing so I think that it makes sense to make a separate data processing script. I&#39;m calling it data_prep.py. Going to copy over most of the heatmap code I have so far, minus the plotting part. 
+
+I need to define a custom colormap for this data. But looking over it...I&#39;m starting to think that it actually might just be easier to repurpose the Bokeh code that I have setup for HSV heatmap. It&#39;s pretty hard to be directly mapping colors to values like I want and I know that I can do that in maybe a more straightfoward way using Bokeh. 
+
+I just tried to run HSV_Bokeh.py and it is no longer finding data_sourc.pkl. I started rearranging the HSV file structure but didn&#39;t finish doing that. I think it&#39;s worth it to take a little bit of time to finish that out to the point where HSV_bokeh is working again. And that way I can take a look at the HSV_Bokeh source code too.
       </section>
       
       </div>

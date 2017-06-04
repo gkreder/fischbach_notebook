@@ -37,6 +37,8 @@
         
           <li><a  href="../../../about/">About</a></li>
         
+          <li><a  href="../../../shared/">Shared</a></li>
+        
       </ul>
     </nav>
     
@@ -150,24 +152,23 @@
 
 
 
-
 <div id="entry">
     <h2>CAS 5-18-17</h2>
 <p>I wrote another sort shell script (check_REC.sh) that checks for unique hits of Cas9_REC keyword in each .pfd file. Uses the -q flag to look for first hit of keyword in file and piped the output of the script (printed file names) to wc -l. Got 158 hits and 158 hits for ls *.pfd | wc -l which, so I think that each file in there has at least one instance of Cas9_REC and some have more. It might be interesting to see which ones have more. Shell script code:</p>
-<div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<pre><code>#!/bin/bash
 
-<span class="nb">cd</span> all_pfam
+cd all_pfam
 
-<span class="nv">array</span><span class="o">=(</span>*.pfd<span class="o">)</span>
+array=(*.pfd)
 
-<span class="k">for</span> i in <span class="s2">&quot;</span><span class="si">${</span><span class="nv">array</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="k">do</span>
-    <span class="k">if</span> <span class="k">$(</span>grep <span class="s2">&quot;-q&quot;</span> <span class="s2">&quot;Cas9_REC&quot;</span> <span class="s2">&quot;</span><span class="nv">$i</span><span class="s2">&quot;</span><span class="k">)</span>
-    <span class="k">then</span>
-        <span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$i</span><span class="s2">&quot;</span>
-    <span class="k">fi</span>
-<span class="k">done</span>
-</pre></div>
+for i in "${array[@]}"
+do
+    if $(grep "-q" "Cas9_REC" "$i")
+    then
+        echo "$i"
+    fi
+done
+</code></pre>
 <p>At this point I may want to automate the process of collecting and cleaning up this data? Or probably better would be to keep going and get to the point where I can do some analysis. Just be smart and leave enough of a paper trail to do similar things with other PFAM keywords if I'm interested.</p>
 <hr>
 <p>I think what I want to do is something like I did for S. Pyogenes, grabbing the surrounding PFAM terms like I did in make_blocks.py.</p>
@@ -340,7 +341,7 @@ slots
   </div>
 
   <footer>
-    &copy; 2016. Made with <a target="_new" href="http://bionano.ucsf.edu/"><i class="fa fa-gears"></i></a> in SF.
+    &copy; 2016. Made with <a target="_new" href="http://bionano.ucsf.edu/"><i class="fa fa-cubes"></i></a> in SF.
   </footer>
 
 </body>

@@ -1,0 +1,243 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="../../../static/favicon.ico?h=e38ef9dd">
+<link rel="stylesheet" href="../../../static/lib/normalize.css?h=ece571f3">
+<link rel="stylesheet" href="../../../static/lib/skeleton.css?h=1fd77917">
+<link rel="stylesheet" href="../../../static/style.css?h=5db9e889">
+<link rel="stylesheet" href="../../../static/lib/medium-editor/medium-editor.min.css?h=17e98ac9">
+<link rel="stylesheet" href="../../../static/fonts/anonymous-pro/anonymous-pro.css?h=7b3d4039">
+<link rel="stylesheet" href="../../../static/fonts/fa/css/font-awesome.min.css?h=512c7d79">
+<link rel="stylesheet" href="../../../static/fonts/ionicons/css/ionicons.min.css?h=f0459300">
+<link rel="stylesheet" href="../../../static/fonts/source-sans-pro/source-sans-pro.css?h=eef2e813">
+
+<!-- <script src="../../../static/lib/clipboard.min.js?h=64efc85d"></script> -->
+<script src="../../../static/lib/jquery-2.2.1.min.js?h=7cb05e3d"></script>
+<script src="../../../static/lib/marked.js?h=acaa528b"></script>
+<script src="../../../static/lib/MooTools-Core-1.6.0.js?h=f829fe22"></script>
+<script src="../../../static/lib/sprintf.js?h=f8d59971"></script>
+<script src="../../../static/lib/medium-editor/medium-editor.min.js?h=d2c3e1bb"></script>
+<script src="../../../static/lib/me-markdown.standalone.min.js?h=f8bd91a7"></script>
+<script src="../../../static/lr-notebook.js?h=9fb07e66"></script>
+
+
+<title></title>
+<body>
+  <header>
+    <h1><i class="fa fa-sticky-note-o"></i> nb-Gabe_Fischbach</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a  href="../../../">Welcome</a></li>
+        
+          <li><a  class="active" href="../../../projects/">Projects</a></li>
+        
+          <li><a  href="../../../calendar/">Calendar</a></li>
+        
+          <li><a  href="../../../meetings/">Meetings</a></li>
+        
+          <li><a  href="../../../about/">About</a></li>
+        
+          <li><a  href="../../../shared/">Shared</a></li>
+        
+      </ul>
+    </nav>
+    
+  </header>
+
+  <iframe width="0" height="0" border="0" name="frame" style="border-style: none;"></iframe>
+
+  <div class="page">
+    
+<h2 style="display: inline;"><a class="orange" href="../../../projects/CAS/">CAS/</a></h2><br>
+<form target="frame" action="/admin/api/browsefs" method="post">
+  <input type="hidden" name="path" value="/projects/CAS/2017-05-26">
+  <input type="image" src=../../../static/images/link.png>
+</form>
+<h2 class="lightblue" style="display: inline;">Fixing Bokeh Data Column Mismatch</h2> <span style="float:right;" class="midgray">2017-05-26</span> 
+<hr>
+
+
+<h5 style="float:left;">Attachments:</h5>
+
+
+<div class="row">
+  <div class="one column"></div>
+  <div class="two columns"><!-- Attachments: --></div>
+<div class="nine columns">
+    
+    
+    
+        <a class="green" href="../../../projects/CAS/2017-05-26/Cas9_REC_heatmap.html">Cas9_REC_heatmap.html</a>
+        
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+ 
+ 
+  
+  
+  
+,
+    
+        <a class="green" href="../../../projects/CAS/2017-05-26/Cas9_REC_pruned.html">Cas9_REC_pruned.html</a>
+        
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+ 
+ 
+  
+  
+  
+
+    
+  </div>
+</div>
+
+
+<hr>
+
+
+
+
+
+<div id="entry">
+    <h2>CAS 05-26-17</h2>
+<p>Looking at the bokeh html output on the CAS heatmap, there's a weird column insertion. There's a strip of random PFAM terms between Cas9_REC and HNH_4. When I go into one of the pfd files and look at the locations, there shouldn't be any PFAM insertion there...</p>
+<p>I think I might have to quickly reorganize the data structure. The real issue is the block data structure I think. It should be organized by lines... I'm going to take a quick look at the make_blocks.py file and see if I can't make it spit out a simpler lines data structure...</p>
+<h2>Rearranging data structure</h2>
+<p>I've repurposed make_blocks.py into a new script called make_lines.py that spits out a data file called \&lt;pfam_term&gt;_lines.pkl. This file is a simple list of list of pfam objects (that should self-contain all their relevant information). Each list of pfam objects represents a line in the plot.</p>
+<h2>Data_prep.py update</h2>
+<p>I now have a function called lines_to_2d(pfam_target) that spits out a data_dict. The entries in the dict are largely the same as before, minus the shape coordinates for rectangles and arrowheads, will have to revisit that later. But the creation of the dict is much cleaner now. I've also passed along responsibility for creating the ColumnDataSource to the plotting function itself which now takes the data_dict as an argument rather than the the ColumnDataSource or DataFrame. The reason for this is that if I take the data_dict into the plotting function I can still do more manipulations to it (e.g. add shape coordinates) before turning into a DataFrame/ColumnDataSource. I think this will help internalize more plotting-specific things to the figures.py code.</p>
+<h2>Erroneous Column</h2>
+<p>After doing this cleanup the weird column insertion between Cas9_REC and HNH_4 is gone. I'm going to try to re-run the pruning and exclusion code to see what pops out.</p>
+
+</div>
+
+
+
+
+
+
+<pre style="display:none;" class="markdown"></pre>
+
+<script>
+  function renderRightAsMarkdown() {
+      var right = document.getElementsByClassName("right");
+      for (var i=0; i<right.length; i++) {
+          src = right[i].innerHTML
+          right[i].innerHTML = marked(src);
+      }
+  }
+  renderRightAsMarkdown();
+</script>
+
+
+
+
+<script>
+
+// Disable clipboard stuff for now
+// var pre = document.getElementsByTagName('pre');
+// for (var i = 0; i < pre.length; i++) {
+//   var button = document.createElement('button');
+//   button.className = 'btn fa fa-copy';
+//   pre[i].appendChild(button);
+// }
+
+// var clipboard = new Clipboard('.btn', {
+//   target: function(trigger) {return trigger.previousElementSibling;}
+// });
+
+// function showSuccess(elem){elem.setAttribute('class','btn fa fa-check');}
+// function sleep (time) {return new Promise((resolve) => setTimeout(resolve, time));}
+// clipboard.on('success',function(e){
+//   showSuccess(e.trigger);
+//   sleep(350).then(() => {e.clearSelection();
+//     e.trigger.setAttribute('class','btn fa fa-copy');})
+// });
+
+// Experimental direct editing
+
+// var paragraphs = $$("#entry>p");
+// var lastEl = paragraphs.getLast();
+// var path = '/projects/CAS/2017-05-26';
+
+// paragraphs.each(function(el) {
+//   var dropArea = new Element('div', {'class':'right droparea',
+//                                      'ondrop':'drop(event, path)',
+//                                      'ondragover':'dragover_handler(event)'
+//                                      });
+//   var next = el.getNext();
+//   if (!!next && !next.hasClass('right')) {
+//     droptext = new Element('div', {'id':'targetString',
+//                                    styles:{display: 'none'},
+//                                    'html':el.get('html')
+//                                   });
+//     droptext.inject(dropArea);
+//     dropArea.inject(el, 'after');
+//   }
+// });
+
+// var rightimgs = $$("img.thumb");
+// rightimgs.each(function(el) {
+//   var button = document.createElement('button');
+//   button.className = 'btn fa fa-window-close';
+//   el.appendChild(button);
+// });
+
+// var markDownEl = document.querySelector(".markdown");
+
+// new MediumEditor($$("#entry>p"), {
+//     extensions: {markdown: new MeMarkdown(function (md) {markDownEl.textContent = md;})},
+//     toolbar: {
+//       allowMultiParagraphSelection: false,
+//       buttons: ['bold', 'italic', 'underline']
+//     },
+//     disableReturn: true,
+//     disableDoubleReturn: true,
+//     disableExtraSpaces: true,
+//     paste: {
+//         forcePlainText: true,
+//         cleanPastedHTML: true
+//     }
+// });
+
+</script>
+
+<a href="slides" id="play-slides-link"><i class="fa fa-play" aria-hidden="true"></i></a>
+
+
+  </div>
+
+  <footer>
+    &copy; 2016. Made with <a target="_new" href="http://bionano.ucsf.edu/"><i class="fa fa-flask"></i></a> in SF.
+  </footer>
+
+</body>

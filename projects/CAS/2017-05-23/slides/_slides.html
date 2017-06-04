@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title></title>
+    <link rel="stylesheet" href="../../../../static/fonts/fa/css/font-awesome.min.css?h=512c7d79">
+    <link rel="stylesheet" href="/static/lib/reveal/css/reveal.css">
+    <link rel="stylesheet" href="/static/lib/reveal/css/theme/white.css" id="theme">
+    <link rel="stylesheet" href="/static/slides.css">
+    <style>#lektor-edit-link {display:none;}</style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+      
+      <section data-markdown data-separator="^\n\n">
+        
+## CAS 05-23-17
+
+First thing to do is to reroute the html output of the bokeh plot function. I want one html output per pfam term in the appropriate pfam term folder. 
+
+Also want to add a legend to the bokeh figure. It&#39;s been pretty straightforward. Just need to add legend keyword when calling rectFig. Going to add a legend column to the source DataFrame. 
+
+I also need to add in the possibility of having more than 11 (12?) key terms that I want to reserve colors for. The way it&#39;s working right now, if it&#39;s more than that (the colorbrewer maximum), it&#39;s going to crash. But first...need to finish the legend.
+
+Got the legend working alright. Had to add a legend list to the data_dict, but that wasn&#39;t a huge deal. Just maps everything into the dict as either one of the key terms or &#39;other&#39;. 
+
+I&#39;m going to comment out the part of the code that doesn&#39;t regenerate the data_dict and dataframe everytime the plot gets made. It doesn&#39;t take any serious amount of time and I keep updating what goes into the df and data_dict so I think it&#39;s worth regenerating it all the time. 
+
+Pruning Key Terms
+-----
+I wrote a function in the analyze.py script called prune_key_terms(pfam_target). It goes in and only keeps the lines from the loaded DataFrame that have less than a certain amount of found key terms. The idea here was to see if there&#39;s any sequences that have Cas9_REC and don&#39;t have the others. It looks like maybe there is...probably worth checking out tomorrow. I&#39;ll include the resulting plot here. 
+
+Also...I want to make the coloring consistent. How can I do that given the current way color mappings are generated? Also forgot to fix the bug where more than 11 (12?) key terms will crash everything. The way I&#39;m going to keep the color mapping consistent is by sorting the key terms alphabetically. That way at least when I have the same number of key terms, it should map to the same color. Dunno about when I have different number of key terms...but that&#39;s not a huge deal I think. 
+
+Wrote an exclude key terms as well to look at sequences without excluded terms. 
+
+Note that I now have separate .txt files for excluding, pruning, and coloring in the all-sequences map (key_terms.txt). 
+      </section>
+      
+      </div>
+    </div>
+
+    <script src="../../../../static/lib/reveal/lib/js/head.min.js?h=8c9495c7"></script>
+    <script src="../../../../static/lib/reveal/js/reveal.js?h=19c4134c"></script>
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        center: false,
+        history: true,
+        margin: 0.2,
+        transition: 'fade', // none/fade/slide/convex/concave/zoom
+        transitionSpeed: 'fast', // default/fast/slow
+
+        menu: {
+            // Specifies which side of the presentation the menu will
+            // be shown. Use 'left' or 'right'.
+            side: 'left',
+
+            // Add slide numbers to the titles in the slide list.
+            // Use 'true' or format string (same as reveal.js slide numbers)
+            numbers: false,
+
+            // Specifies which slide elements will be used for generating
+            // the slide titles in the menu. The default selects the first
+            // heading element found in the slide, but you can specify any
+            // valid css selector and the text from the first matching
+            // element will be used.
+            // Note: that a section data-menu-title attribute or an element
+            // with a menu-title class will take precedence over this option
+            titleSelector: 'h1, h2, h3, h4, h5, h6',
+
+            // Hide slides from the menu that do not have a title.
+            // Set to 'true' to only list slides with titles.
+            hideMissingTitles: false,
+
+            // Add markers to the slide titles to indicate the
+            // progress through the presentation
+            markers: true,
+
+            // Specify custom panels to be included in the menu, by
+            // providing an array of objects with 'title', 'icon'
+            // properties, and either a 'src' or 'content' property.
+            custom: false,
+
+            // Specifies the themes that will be available in the themes
+            // menu panel. Set to 'false' to hide themes panel.
+            themes: [
+                { name: 'Black', theme: '/static/lib/reveal/css/theme/black.css' },
+                { name: 'White', theme: '/static/lib/reveal/css/theme/white.css' },
+                { name: 'League', theme: '/static/lib/reveal/css/theme/league.css' },
+                { name: 'Sky', theme: '/static/lib/reveal/css/theme/sky.css' },
+                { name: 'Solarized', theme: '/static/lib/reveal/css/theme/solarized.css' }
+            ],
+
+            // Specifies if the transitions menu panel will be shown.
+            transitions: true,
+
+            // Adds a menu button to the slides to open the menu panel.
+            // Set to 'false' to hide the button.
+            openButton: true,
+
+            // If 'true' allows the slide number in the presentation to
+            // open the menu panel. The reveal.js slideNumber option must
+            // be displayed for this to take effect
+            openSlideNumber: false,
+
+            // If true allows the user to open and navigate the menu using
+            // the keyboard. Standard keyboard interaction with reveal
+            // will be disabled while the menu is open.
+            keyboard: true
+        },
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [
+          { src: "../../../../static/lib/reveal/plugin/markdown/marked.js" },
+          { src: "../../../../static/lib/reveal/plugin/markdown/markdown.js" },
+          { src: "../../../../static/lib/reveal/plugin/menu/menu.js"},
+          { src: "../../../../static/lib/reveal/plugin/zoom-js/zoom.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/notes/notes.js", async: true },
+          { src: "../../../../static/lib/reveal/plugin/highlight/highlight.js", async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+      });
+    </script>
+
+    <a href=".." id="exit-slides-link"><i class="fa fa-close" aria-hidden="true"></i></a>
+  </body>
+</html>

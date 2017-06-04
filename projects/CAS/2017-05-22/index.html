@@ -1,0 +1,203 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="../../../static/favicon.ico?h=e38ef9dd">
+<link rel="stylesheet" href="../../../static/lib/normalize.css?h=ece571f3">
+<link rel="stylesheet" href="../../../static/lib/skeleton.css?h=1fd77917">
+<link rel="stylesheet" href="../../../static/style.css?h=5db9e889">
+<link rel="stylesheet" href="../../../static/lib/medium-editor/medium-editor.min.css?h=17e98ac9">
+<link rel="stylesheet" href="../../../static/fonts/anonymous-pro/anonymous-pro.css?h=7b3d4039">
+<link rel="stylesheet" href="../../../static/fonts/fa/css/font-awesome.min.css?h=512c7d79">
+<link rel="stylesheet" href="../../../static/fonts/ionicons/css/ionicons.min.css?h=f0459300">
+<link rel="stylesheet" href="../../../static/fonts/source-sans-pro/source-sans-pro.css?h=eef2e813">
+
+<!-- <script src="../../../static/lib/clipboard.min.js?h=64efc85d"></script> -->
+<script src="../../../static/lib/jquery-2.2.1.min.js?h=7cb05e3d"></script>
+<script src="../../../static/lib/marked.js?h=acaa528b"></script>
+<script src="../../../static/lib/MooTools-Core-1.6.0.js?h=f829fe22"></script>
+<script src="../../../static/lib/sprintf.js?h=f8d59971"></script>
+<script src="../../../static/lib/medium-editor/medium-editor.min.js?h=d2c3e1bb"></script>
+<script src="../../../static/lib/me-markdown.standalone.min.js?h=f8bd91a7"></script>
+<script src="../../../static/lr-notebook.js?h=9fb07e66"></script>
+
+
+<title></title>
+<body>
+  <header>
+    <h1><i class="fa fa-sticky-note-o"></i> nb-Gabe_Fischbach</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a  href="../../../">Welcome</a></li>
+        
+          <li><a  class="active" href="../../../projects/">Projects</a></li>
+        
+          <li><a  href="../../../calendar/">Calendar</a></li>
+        
+          <li><a  href="../../../meetings/">Meetings</a></li>
+        
+          <li><a  href="../../../about/">About</a></li>
+        
+          <li><a  href="../../../shared/">Shared</a></li>
+        
+      </ul>
+    </nav>
+    
+  </header>
+
+  <iframe width="0" height="0" border="0" name="frame" style="border-style: none;"></iframe>
+
+  <div class="page">
+    
+<h2 style="display: inline;"><a class="orange" href="../../../projects/CAS/">CAS/</a></h2><br>
+<form target="frame" action="/admin/api/browsefs" method="post">
+  <input type="hidden" name="path" value="/projects/CAS/2017-05-22">
+  <input type="image" src=../../../static/images/link.png>
+</form>
+<h2 class="lightblue" style="display: inline;">Plotting Cas9_REC data in Bokeh</h2> <span style="float:right;" class="midgray">2017-05-22</span> 
+<hr>
+
+
+<h5 style="float:left;">Attachments:</h5>
+
+
+<div class="row">
+  <div class="one column"></div>
+  <div class="two columns"><!-- Attachments: --></div>
+<div class="nine columns">
+    
+      
+        <a href="../../../projects/CAS/2017-05-22/Cas9_REC_bokeh_plot.png"><img id="Cas9_REC_bokeh_plot.png" draggable="true" ondragstart="drag(event)" ondragend="dragend(event)" src="../../../projects/CAS/2017-05-22/Cas9_REC_bokeh_plot@50x50.png"></a>
+      
+    
+    <br/>
+    
+  </div>
+</div>
+
+
+<hr>
+
+
+
+
+
+<div id="entry">
+    <h2>CAS 05-22-17</h2>
+<p>So going back into the Bokeh code for HSV it looks like the end result I need to plug into the rectangle plot is a pandas dataFrame that will associate a color to each entry. Each entry here will be an element of the PFAM grid.</p>
+<p>I think I should make a data_prep function like I did for HSV but make it generalizable to different PFAM domains.</p>
+<p>I already have the blocks_to_array funciton in the existing CAS data_prep code, I think I can work off of that.</p>
+<p>I've set up the data_prep.py script in the top-level CAS folder that looks somewhat like the data_prep script from the HSV folder. A difference here is that the CAS data_prep script functions take a pfam target as an argument so that they can be called with various pfam key terms.</p>
+<p>I just created a folder called scripts in the CAS top-directory and threw all the python scripts in there to make things cleaner. Also saw that if you want to import python functions/scripts from somewhere else (another folder) can do</p>
+<pre><code>from application.app.folder.file import func_name
+</code></pre>
+<p><strong>as long as you have a file called <strong>init.py</strong> inside of that folder</strong>. <strong>init.py</strong> tells python that the directory can be treated like a package.</p>
+<p>I've gotten the basic bokeh heatmap plot showing up, now just need to work on the color mapping</p>
+<h2>Color Mapping</h2>
+<p>Now need to define a color map for the bokeh plot. I can get the key terms as defined in the key_terms file for the pfam_target directory. All I need to do I think is to white out the non-key-term pfam_id entries.</p>
+<p>Also, added .txt extension to key_terms so that I can see the contents in preview. And I am going to rearrange the get_key_terms function so that I can just feed it a pfam_target argument and it will autmatically get the key terms.</p>
+<p>Just looked online and found a python module on pypi that plugs python in to Cynthia Brewer's colorbrewer website in a straightforward way. It's called brewer2mpl and I installed it into my fischbach conda environment using pip install.</p>
+<p>Looks like it's working alright now. I have another heatmap that looks like the HSV one. I think at this point it might be worth taking a second to try to upload these to the notebook? I'm still not sure what the best way of presenting these is, but I think that the bokeh output is a static html file which should plug pretty easily into the lektor notebook format.</p>
+
+</div>
+
+
+
+
+
+
+<pre style="display:none;" class="markdown"></pre>
+
+<script>
+  function renderRightAsMarkdown() {
+      var right = document.getElementsByClassName("right");
+      for (var i=0; i<right.length; i++) {
+          src = right[i].innerHTML
+          right[i].innerHTML = marked(src);
+      }
+  }
+  renderRightAsMarkdown();
+</script>
+
+
+
+
+<script>
+
+// Disable clipboard stuff for now
+// var pre = document.getElementsByTagName('pre');
+// for (var i = 0; i < pre.length; i++) {
+//   var button = document.createElement('button');
+//   button.className = 'btn fa fa-copy';
+//   pre[i].appendChild(button);
+// }
+
+// var clipboard = new Clipboard('.btn', {
+//   target: function(trigger) {return trigger.previousElementSibling;}
+// });
+
+// function showSuccess(elem){elem.setAttribute('class','btn fa fa-check');}
+// function sleep (time) {return new Promise((resolve) => setTimeout(resolve, time));}
+// clipboard.on('success',function(e){
+//   showSuccess(e.trigger);
+//   sleep(350).then(() => {e.clearSelection();
+//     e.trigger.setAttribute('class','btn fa fa-copy');})
+// });
+
+// Experimental direct editing
+
+// var paragraphs = $$("#entry>p");
+// var lastEl = paragraphs.getLast();
+// var path = '/projects/CAS/2017-05-22';
+
+// paragraphs.each(function(el) {
+//   var dropArea = new Element('div', {'class':'right droparea',
+//                                      'ondrop':'drop(event, path)',
+//                                      'ondragover':'dragover_handler(event)'
+//                                      });
+//   var next = el.getNext();
+//   if (!!next && !next.hasClass('right')) {
+//     droptext = new Element('div', {'id':'targetString',
+//                                    styles:{display: 'none'},
+//                                    'html':el.get('html')
+//                                   });
+//     droptext.inject(dropArea);
+//     dropArea.inject(el, 'after');
+//   }
+// });
+
+// var rightimgs = $$("img.thumb");
+// rightimgs.each(function(el) {
+//   var button = document.createElement('button');
+//   button.className = 'btn fa fa-window-close';
+//   el.appendChild(button);
+// });
+
+// var markDownEl = document.querySelector(".markdown");
+
+// new MediumEditor($$("#entry>p"), {
+//     extensions: {markdown: new MeMarkdown(function (md) {markDownEl.textContent = md;})},
+//     toolbar: {
+//       allowMultiParagraphSelection: false,
+//       buttons: ['bold', 'italic', 'underline']
+//     },
+//     disableReturn: true,
+//     disableDoubleReturn: true,
+//     disableExtraSpaces: true,
+//     paste: {
+//         forcePlainText: true,
+//         cleanPastedHTML: true
+//     }
+// });
+
+</script>
+
+<a href="slides" id="play-slides-link"><i class="fa fa-play" aria-hidden="true"></i></a>
+
+
+  </div>
+
+  <footer>
+    &copy; 2016. Made with <a target="_new" href="http://bionano.ucsf.edu/"><i class="fa fa-sliders"></i></a> in SF.
+  </footer>
+
+</body>

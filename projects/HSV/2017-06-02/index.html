@@ -1,0 +1,177 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="../../../static/favicon.ico?h=e38ef9dd">
+<link rel="stylesheet" href="../../../static/lib/normalize.css?h=ece571f3">
+<link rel="stylesheet" href="../../../static/lib/skeleton.css?h=1fd77917">
+<link rel="stylesheet" href="../../../static/style.css?h=5db9e889">
+<link rel="stylesheet" href="../../../static/lib/medium-editor/medium-editor.min.css?h=17e98ac9">
+<link rel="stylesheet" href="../../../static/fonts/anonymous-pro/anonymous-pro.css?h=7b3d4039">
+<link rel="stylesheet" href="../../../static/fonts/fa/css/font-awesome.min.css?h=512c7d79">
+<link rel="stylesheet" href="../../../static/fonts/ionicons/css/ionicons.min.css?h=f0459300">
+<link rel="stylesheet" href="../../../static/fonts/source-sans-pro/source-sans-pro.css?h=eef2e813">
+
+<!-- <script src="../../../static/lib/clipboard.min.js?h=64efc85d"></script> -->
+<script src="../../../static/lib/jquery-2.2.1.min.js?h=7cb05e3d"></script>
+<script src="../../../static/lib/marked.js?h=acaa528b"></script>
+<script src="../../../static/lib/MooTools-Core-1.6.0.js?h=f829fe22"></script>
+<script src="../../../static/lib/sprintf.js?h=f8d59971"></script>
+<script src="../../../static/lib/medium-editor/medium-editor.min.js?h=d2c3e1bb"></script>
+<script src="../../../static/lib/me-markdown.standalone.min.js?h=f8bd91a7"></script>
+<script src="../../../static/lr-notebook.js?h=9fb07e66"></script>
+
+
+<title></title>
+<body>
+  <header>
+    <h1><i class="fa fa-sticky-note-o"></i> nb-Gabe_Fischbach</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a  href="../../../">Welcome</a></li>
+        
+          <li><a  class="active" href="../../../projects/">Projects</a></li>
+        
+          <li><a  href="../../../calendar/">Calendar</a></li>
+        
+          <li><a  href="../../../meetings/">Meetings</a></li>
+        
+          <li><a  href="../../../about/">About</a></li>
+        
+          <li><a  href="../../../shared/">Shared</a></li>
+        
+      </ul>
+    </nav>
+    
+  </header>
+
+  <iframe width="0" height="0" border="0" name="frame" style="border-style: none;"></iframe>
+
+  <div class="page">
+    
+<h2 style="display: inline;"><a class="orange" href="../../../projects/HSV/">HSV/</a></h2><br>
+<form target="frame" action="/admin/api/browsefs" method="post">
+  <input type="hidden" name="path" value="/projects/HSV/2017-06-02">
+  <input type="image" src=../../../static/images/link.png>
+</form>
+<h2 class="lightblue" style="display: inline;">Untitled</h2> <span style="float:right;" class="midgray">2017-06-02</span> 
+<hr>
+
+
+
+
+
+
+<div id="entry">
+    <h2>06-2-17</h2>
+<p>How do I go about finding the common core of the HHV genomes?  One idea is to find the correlation between the inflation value and the existence of the cluster (logistic regression?). I guess this makes the most sense...</p>
+<p>I was also thinking I could go through and ask for every cutoff value (e.g. half, quater, etc.) I put in, how many persistent clusters do I find? So I could look at how many clusters get spit out when I say they must be present in 45 out of all inflation value datasets and 46 and so on and so on and track how many persistent clusters there are.</p>
+<p>Maybe these two could be good orthogonal plots to each other?</p>
+<h2>All HHV common clusters</h2>
+<p>Now that I have a bunch of different datasets for a range of inflation values, I'm still getting no common clusters for any of them, regardless of cutoff. If I set the cutoff to zero I should definitely be seing something which means that something's off in the find_common_clusters function.</p>
+<p><strong>There are no clusters that are common to the HHV's that do not exist in CeHV1</strong> -- there's the issue so far. I specied clusters that are unique to HHV's and didn't include CeHV in there. It looks like for every cluster that could be common to all HHV's they have CeHV in there as well.</p>
+<p>I've added in an optional argument that gets passed to get_common_clusters (gets passed to get_species_clusters in the data set object). The argument is called HHV_only and if it's true it'll only check the HHV species for every cluster.</p>
+<p>This has given me a plot of the persistent clusters there. I'm going to use a cutoff of 396 (as the actual number of datasets in which the clusters must be present) since it's in that pretty large zone of 12 persistent HHV clusters.</p>
+
+</div>
+
+
+
+
+
+
+<pre style="display:none;" class="markdown"></pre>
+
+<script>
+  function renderRightAsMarkdown() {
+      var right = document.getElementsByClassName("right");
+      for (var i=0; i<right.length; i++) {
+          src = right[i].innerHTML
+          right[i].innerHTML = marked(src);
+      }
+  }
+  renderRightAsMarkdown();
+</script>
+
+
+
+
+<script>
+
+// Disable clipboard stuff for now
+// var pre = document.getElementsByTagName('pre');
+// for (var i = 0; i < pre.length; i++) {
+//   var button = document.createElement('button');
+//   button.className = 'btn fa fa-copy';
+//   pre[i].appendChild(button);
+// }
+
+// var clipboard = new Clipboard('.btn', {
+//   target: function(trigger) {return trigger.previousElementSibling;}
+// });
+
+// function showSuccess(elem){elem.setAttribute('class','btn fa fa-check');}
+// function sleep (time) {return new Promise((resolve) => setTimeout(resolve, time));}
+// clipboard.on('success',function(e){
+//   showSuccess(e.trigger);
+//   sleep(350).then(() => {e.clearSelection();
+//     e.trigger.setAttribute('class','btn fa fa-copy');})
+// });
+
+// Experimental direct editing
+
+// var paragraphs = $$("#entry>p");
+// var lastEl = paragraphs.getLast();
+// var path = '/projects/HSV/2017-06-02';
+
+// paragraphs.each(function(el) {
+//   var dropArea = new Element('div', {'class':'right droparea',
+//                                      'ondrop':'drop(event, path)',
+//                                      'ondragover':'dragover_handler(event)'
+//                                      });
+//   var next = el.getNext();
+//   if (!!next && !next.hasClass('right')) {
+//     droptext = new Element('div', {'id':'targetString',
+//                                    styles:{display: 'none'},
+//                                    'html':el.get('html')
+//                                   });
+//     droptext.inject(dropArea);
+//     dropArea.inject(el, 'after');
+//   }
+// });
+
+// var rightimgs = $$("img.thumb");
+// rightimgs.each(function(el) {
+//   var button = document.createElement('button');
+//   button.className = 'btn fa fa-window-close';
+//   el.appendChild(button);
+// });
+
+// var markDownEl = document.querySelector(".markdown");
+
+// new MediumEditor($$("#entry>p"), {
+//     extensions: {markdown: new MeMarkdown(function (md) {markDownEl.textContent = md;})},
+//     toolbar: {
+//       allowMultiParagraphSelection: false,
+//       buttons: ['bold', 'italic', 'underline']
+//     },
+//     disableReturn: true,
+//     disableDoubleReturn: true,
+//     disableExtraSpaces: true,
+//     paste: {
+//         forcePlainText: true,
+//         cleanPastedHTML: true
+//     }
+// });
+
+</script>
+
+<a href="slides" id="play-slides-link"><i class="fa fa-play" aria-hidden="true"></i></a>
+
+
+  </div>
+
+  <footer>
+    &copy; 2016. Made with <a target="_new" href="http://bionano.ucsf.edu/"><i class="fa fa-cubes"></i></a> in SF.
+  </footer>
+
+</body>

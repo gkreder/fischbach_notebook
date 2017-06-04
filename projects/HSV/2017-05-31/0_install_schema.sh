@@ -1,0 +1,1 @@
+orthomclInstallSchema ../data/orthomcl_files/orthomcl.config.template ../data/orthomcl_files/orthomclInstallSchema.log

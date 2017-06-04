@@ -37,6 +37,8 @@
         
           <li><a  href="../../../about/">About</a></li>
         
+          <li><a  href="../../../shared/">Shared</a></li>
+        
       </ul>
     </nav>
     
@@ -51,10 +53,29 @@
   <input type="hidden" name="path" value="/projects/CAS/2017-05-19">
   <input type="image" src=../../../static/images/link.png>
 </form>
-<h2 class="lightblue" style="display: inline;"></h2> <span style="float:right;" class="midgray">2017-05-19</span> 
+<h2 class="lightblue" style="display: inline;">Cas9_REC PFAM Results Grid</h2> <span style="float:right;" class="midgray">2017-05-19</span> 
 <hr>
 
 
+<h5 style="float:left;">Attachments:</h5>
+
+
+<div class="row">
+  <div class="one column"></div>
+  <div class="two columns"><!-- Attachments: --></div>
+<div class="nine columns">
+    
+      
+        <a href="../../../projects/CAS/2017-05-19/first_pass.png"><img id="first_pass.png" draggable="true" ondragstart="drag(event)" ondragend="dragend(event)" src="../../../projects/CAS/2017-05-19/first_pass@50x50.png"></a>
+      
+    
+    <br/>
+    
+  </div>
+</div>
+
+
+<hr>
 
 
 
@@ -106,6 +127,27 @@
 </tbody>
 </table>
 <p>The adjacent pfam terms can be colored and sorted for visualization</p>
+<p>Would this make sense to do with Bokeh? I already have something of a heatmap code up and running and could make some sense to use it...</p>
+<p>If I can integrate the generated Bokeh html into the lektor notebook then it might be worth it.</p>
+<h2>Adding Tab to Lektor Notebook</h2>
+<p>If I just add a folder in the content directory of the lektor notebook, nothing seems to get added. If I go into the templates folder, I think it's because I need to add something to the actual layout .html file.</p>
+<p>I've created a backup copy of the layout.html file and modified the existing one. I've added a tab called data that should link to ./content/data in the notebook file structure.</p>
+<p>I copied over the contents.lr file from the projects page to the data folder and it looks to be fine in terms of the linking. The content.lr file is just linking to the projects model. So I think I may just have to create a new type of model for this page and link it to the Bokeh html file.</p>
+<p>Just changed the new tab name to 'results'</p>
+<p>I'm creating a new model called 'results.ini' (copied the projects.ini file and renamed it). I'm giving it a child model like the projects.ini model has the project.ini child. Calling it result.ini</p>
+<p>I've also created corresponding results.html and result.html files. 
+I'm updated the results.html file but not seing updates on the rendered results page. I'm going to put this down for now and come back to it when I have more data to be putting in there anyways.</p>
+<h2>Heatmap data (heatmap.py)</h2>
+<p>Back to the visualization. I'm making a new scipt called heatmap.py that will render a grid/heatmap as described above.</p>
+<p>I have pfam terms now concatenated into a single numpy array with dimensions (162, 51). I need to have a color mapping now. I think the way to do it is to count the number of unique pfam terms in the concatenated array and assign each one a unique int (do I need this or can I just straight to assigning each one a unique color?). I'll try assigning each one a unique integer first and spitting out a heatmap.</p>
+<p>This works fine, but the heatmap is pretty unreadable (first_pass.png).</p>
+<p>Jakub suggested just coloring in the 'priveleged' cas terms. e.g. cas1/2 and the nuclease terms. The rest of the random sort of colors aren't that important.</p>
+<h2>Coloring Key Terms</h2>
+<p>I think the best way to do that will be to associate 'priveleged' terms with each target pfam as a separate txt file in the data folder as blocks.out.</p>
+<p>I'm creating a file in the data directory just called 'key_terms'. Each line in this file is going to be a pfam term (can be easily edited) and every pfam term in this file will get its own color. Otherwise, no colors for the rest of the terms.</p>
+<p>It sounds like I'll have to do a little bit of data processing so I think that it makes sense to make a separate data processing script. I'm calling it data_prep.py. Going to copy over most of the heatmap code I have so far, minus the plotting part.</p>
+<p>I need to define a custom colormap for this data. But looking over it...I'm starting to think that it actually might just be easier to repurpose the Bokeh code that I have setup for HSV heatmap. It's pretty hard to be directly mapping colors to values like I want and I know that I can do that in maybe a more straightfoward way using Bokeh.</p>
+<p>I just tried to run HSV_Bokeh.py and it is no longer finding data_sourc.pkl. I started rearranging the HSV file structure but didn't finish doing that. I think it's worth it to take a little bit of time to finish that out to the point where HSV_bokeh is working again. And that way I can take a look at the HSV_Bokeh source code too.</p>
 
 </div>
 
@@ -206,7 +248,7 @@
   </div>
 
   <footer>
-    &copy; 2016. Made with <a target="_new" href="http://bionano.ucsf.edu/"><i class="fa fa-hand-lizard-o"></i></a> in SF.
+    &copy; 2016. Made with <a target="_new" href="http://bionano.ucsf.edu/"><i class="fa fa-gears"></i></a> in SF.
   </footer>
 
 </body>
